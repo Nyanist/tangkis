@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TANGKIS | Pemantauan Kesiapan Bahan Bakar Genset Cadangan</title>
+<script>
+  /* Ditandai sebelum halaman digambar agar animasi tidak berkedip.
+     Tambahkan ?statis di akhir URL untuk tangkapan layar tanpa animasi. */
+  (function (d) {
+    var statis = /[?&]statis(?:[=&]|$)/.test(location.search) ||
+      (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    d.documentElement.className += statis ? " js statis" : " js";
+  })(document);
+</script>
+<style>
+/*
+  TANGKIS v2: tampilan pusat pemantauan.
+  Layar lebar lanskap (lebar >= 1200px): kanvas 16:9 yang selalu utuh,
+  1rem = 10px ketika kanvas selebar 1600px.
+  Layar sempit atau potret: tata letak cair yang bisa digulir.
+*/
+:root {
+  --navy: #123B66;
+  --navy-dark: #0B2239;
+  --bg: #F4F7FA;
+  --surface: #FFFFFF;
+  --border: #D9E1E8;
+  --ok: #2E8B57;
+  --warn: #E9A21B;
+  --crit: #D64545;
+  --info: #2F6FED;
+  --text: #172B3A;
+  --text-2: #6B7C8C;
+
+  /* Turunan: teks kecil butuh kontras minimal 4,5:1, ditambah tint status */
+  --text-3: #5A6B7B;
+  --ok-strong: #1F6B42;
+  --warn-strong: #8A5A00;
+  --crit-strong: #B83232;
+  --ok-tint: rgba(46, 139, 87, 0.10);
+  --warn-tint: rgba(233, 162, 27, 0.15);
+  --crit-tint: rgba(214, 69, 69, 0.06);
+  --crit-tint-2: rgba(214, 69, 69, 0.12);
+  --navy-tint: rgba(18, 59, 102, 0.045);
+  --navy-tint-2: rgba(18, 59, 102, 0.09);
+  --track: rgba(23, 43, 58, 0.08);
+  --ribbon-bg: #FBEED6;
+  --ribbon-line: rgba(233, 162, 27, 0.55);
+
+  --radius: 0.8rem;
+  --radius-sm: 0.5rem;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+html { font-size: 62.5%; -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  font-size: 1.45rem;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, p, ul, dl, dd { margin: 0; }
+ul { padding: 0; list-style: none; }
+button { font: inherit; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.ico {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- Kanvas dan latar teknis ---------- */
+.stage {
+  position: relative;
+  isolation: isolate;
+  max-width: 144rem;
+  margin: 0 auto;
+  padding: 4.8rem 1.6rem 2rem;
+}
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(18, 59, 102, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(18, 59, 102, 0.055) 1px, transparent 1px),
+    linear-gradient(to right, rgba(18, 59, 102, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(18, 59, 102, 0.025) 1px, transparent 1px);
+  background-size: 8rem 8rem, 8rem 8rem, 1.6rem 1.6rem, 1.6rem 1.6rem;
+  -webkit-mask-image: linear-gradient(to bottom, #000, rgba(0, 0, 0, 0.35) 30%, rgba(0, 0, 0, 0.15));
+          mask-image: linear-gradient(to bottom, #000, rgba(0, 0, 0, 0.35) 30%, rgba(0, 0, 0, 0.15));
+}
+
+/* Pita label data contoh (wajib) */
+.ribbon {
+  position: fixed;
+  top: 0;
+  right: 1.6rem;
+  z-index: 30;
+  padding: 0.55rem 1.3rem 0.65rem;
+  background: var(--ribbon-bg);
+  border: 1px solid var(--ribbon-line);
+  border-top: 0;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* ---------- Indikator LED ---------- */
+.led {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.led--ok { color: var(--ok); }
+.led--warn { color: var(--warn); }
+.led--crit { color: var(--crit); }
+.led--info { color: var(--info); }
+.led--putih { color: #FFFFFF; }
+.led--pulse::after {
+  content: "";
+  position: absolute;
+  inset: -0.35rem;
+  border: 0.15rem solid currentColor;
+  border-radius: 50%;
+  opacity: 0;
+}
+.js:not(.statis) .led--pulse::after { animation: denyut 2.4s ease-out infinite; }
+.statis .led--pulse::after { opacity: 0.3; transform: scale(1.35); }
+@keyframes denyut {
+  0% { opacity: 0.6; transform: scale(0.55); }
+  70%, 100% { opacity: 0; transform: scale(1.7); }
+}
+
+/* ---------- 1. Header ---------- */
+.topbar {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 2.4rem;
+  padding-bottom: 1.2rem;
+  margin-bottom: 1.4rem;
+  border-bottom: 1px solid var(--border);
+}
+.topbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 12rem;
+  height: 2px;
+  background: var(--navy);
+}
+.brand { display: flex; flex-direction: column; gap: 0.5rem; }
+.brand-name {
+  color: var(--navy-dark);
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1;
+}
+.brand-sub { color: var(--navy); font-size: 1.45rem; font-weight: 500; }
+.topbar-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.6rem;
+}
+.sys-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.4rem 1.1rem 0.4rem 1rem;
+  background: var(--ok-tint);
+  border: 1px solid rgba(46, 139, 87, 0.35);
+  border-radius: 99rem;
+  color: var(--ok-strong);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.updated { color: var(--text-3); font-size: 1.3rem; }
+.updated time { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- Grid utama ---------- */
+.layout {
+  display: grid;
+  gap: 1.4rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "kpi" "alert" "table" "chart" "health";
+}
+.rail { display: contents; }
+.summary { grid-area: kpi; }
+.table-card { grid-area: table; }
+.chart-card { grid-area: chart; }
+.alert-panel { grid-area: alert; }
+.health-card { grid-area: health; }
+
+.card {
+  min-width: 0;
+  padding: 1.5rem 1.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1.6rem;
+  margin-bottom: 1.1rem;
+}
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: var(--navy-dark);
+  font-size: 1.55rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.card-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: var(--text-3);
+  font-size: 1.2rem;
+}
+
+/* ---------- 2. Kartu ringkasan ---------- */
+.summary {
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.stat {
+  position: relative;
+  min-width: 0;
+  padding: 1.2rem 1.6rem 1.3rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.6rem 1.6rem rgba(11, 34, 57, 0.08);
+}
+.stat--merah {
+  padding-left: calc(1.2rem + 1px);
+  background: linear-gradient(var(--crit-tint), var(--crit-tint)), var(--surface);
+  border-left: 0.4rem solid var(--crit);
+}
+.stat-top { display: flex; align-items: center; gap: 0.8rem; }
+.stat-icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.6rem;
+  background: var(--navy-tint-2);
+  color: var(--navy);
+  transition: transform 0.2s var(--ease);
+}
+.stat:hover .stat-icon { transform: scale(1.08); }
+.stat--hijau .stat-icon { background: var(--ok-tint); color: var(--ok-strong); }
+.stat--kuning .stat-icon { background: var(--warn-tint); color: var(--warn-strong); }
+.stat--merah .stat-icon { background: var(--crit-tint-2); color: var(--crit-strong); }
+.stat-label {
+  overflow: hidden;
+  color: var(--text-3);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.stat-main {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.2rem;
+  margin-top: 0.9rem;
+}
+.stat-value {
+  color: var(--text);
+  font-size: 3.4rem;
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.stat--merah .stat-value { color: var(--crit-strong); }
+.stat-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+  min-width: 0;
+}
+.stat-micro {
+  color: var(--text-3);
+  font-size: 1.2rem;
+  white-space: nowrap;
+}
+.stat--merah .stat-micro { color: var(--crit-strong); font-weight: 600; }
+.segbar { display: flex; gap: 0.3rem; }
+.seg {
+  width: 1.5rem;
+  height: 0.6rem;
+  border-radius: 0.2rem;
+  background: var(--track);
+}
+.seg--hijau { background: var(--ok); }
+.seg--kuning { background: var(--warn); }
+.seg--merah { background: var(--crit); }
+
+/* ---------- 3. Tabel tangki ---------- */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tanks {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.tanks th {
+  padding: 0.75rem 1.2rem;
+  background: var(--navy-tint);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-3);
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+.tanks th:first-child { padding-left: 1.8rem; border-radius: var(--radius-sm) 0 0 0; }
+.tanks th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
+.tanks td {
+  position: relative;
+  padding: 0.62rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 1.45rem;
+  vertical-align: middle;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+.tanks th { white-space: normal; }
+.tanks td.loc { min-width: 18rem; white-space: normal; }
+.tanks tbody tr:last-child td { border-bottom: 0; }
+.tanks tbody tr:hover td { background: var(--navy-tint); }
+.tanks .num { text-align: right; }
+.tanks .status { padding-left: 2rem; }
+.tanks td.code { padding-left: 1.8rem; color: var(--navy-dark); font-weight: 700; }
+.tanks td.code::before {
+  content: "";
+  position: absolute;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  left: 0;
+  width: 0.3rem;
+  border-radius: 0.2rem;
+  background: var(--sev, transparent);
+}
+.row--hijau { --sev: rgba(46, 139, 87, 0.5); }
+.row--kuning { --sev: rgba(233, 162, 27, 0.8); }
+.row--merah { --sev: var(--crit); }
+.tanks tr.is-merah td { background: var(--crit-tint); }
+.tanks tbody tr.is-merah:hover td { background: var(--crit-tint-2); }
+.tanks tr.is-merah td.code::before { top: 0; bottom: 0; width: 0.4rem; border-radius: 0; }
+.loc-unit { color: var(--text-3); }
+
+.ppm-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.2rem;
+}
+.mini {
+  position: relative;
+  width: 8.4rem;
+  height: 0.6rem;
+  border-radius: 0.3rem;
+  background: var(--track);
+}
+.mini-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(var(--v) * 100%);
+  border-radius: inherit;
+  background: var(--c);
+  transform-origin: left center;
+}
+.js:not(.statis) .mini-fill { transition: transform 0.9s var(--ease) calc(var(--d, 0s) + 0.15s); }
+.js:not(.statis):not(.siap) .mini-fill { transform: scaleX(0); }
+.mini-mark {
+  position: absolute;
+  top: -0.3rem;
+  bottom: -0.3rem;
+  left: calc(var(--p) * 100%);
+  width: 2px;
+  margin-left: -1px;
+  background: var(--crit-strong);
+}
+.val { min-width: 3.4ch; font-weight: 600; text-align: right; }
+.row--merah .val { color: var(--crit-strong); }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-width: 9.6rem;
+  padding: 0.25rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 99rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  line-height: 1.4;
+}
+.pill--hijau { background: var(--ok-tint); border-color: rgba(46, 139, 87, 0.3); color: var(--ok-strong); }
+.pill--kuning { background: var(--warn-tint); border-color: rgba(233, 162, 27, 0.5); color: var(--warn-strong); }
+.pill--merah { background: var(--crit-strong); border-color: var(--crit-strong); color: #FFFFFF; }
+
+.scroll-hint { display: none; margin: 0 0 0.8rem; color: var(--text-3); font-size: 1.2rem; }
+@media (max-width: 759px) {
+  .scroll-hint { display: block; }
+}
+.threshold-note {
+  margin-top: 0.8rem;
+  color: var(--text-3);
+  font-size: 1.2rem;
+  line-height: 1.5;
+}
+.lg-bar {
+  position: relative;
+  width: 3rem;
+  height: 0.6rem;
+  border-radius: 0.3rem;
+  background: var(--track);
+}
+.lg-bar::after {
+  content: "";
+  position: absolute;
+  top: -0.3rem;
+  bottom: -0.3rem;
+  left: calc(var(--p, 0.66) * 100%);
+  width: 2px;
+  background: var(--crit-strong);
+}
+
+/* ---------- 4. Grafik tren ---------- */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1.6rem;
+  color: var(--text-3);
+  font-size: 1.2rem;
+}
+.legend li { display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap; }
+.lg-line { width: 1.8rem; height: 0.25rem; border-radius: 0.2rem; background: var(--navy); }
+.lg-dash { width: 1.8rem; border-top: 0.2rem dashed var(--crit); }
+.lg-dot {
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 0.15rem solid var(--surface);
+  border-radius: 50%;
+  background: var(--crit);
+  box-shadow: 0 0 0 1px var(--crit);
+}
+
+.chart-wrap { position: relative; height: 30rem; }
+.chart-svg {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-sm);
+  outline: none;
+  touch-action: pan-y;
+}
+.chart-svg:focus-visible { box-shadow: 0 0 0 0.2rem var(--info); }
+.chart-svg svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.chart-svg text { font-family: inherit; }
+
+.c-band--ok { fill: rgba(46, 139, 87, 0.05); }
+.c-band--warn { fill: rgba(233, 162, 27, 0.07); }
+.c-band--crit { fill: rgba(214, 69, 69, 0.035); }
+.c-band-label { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
+.c-band-label--ok { fill: var(--ok-strong); }
+.c-band-label--warn { fill: var(--warn-strong); }
+.c-band-label--crit { fill: var(--crit-strong); }
+.c-grid { stroke: rgba(23, 43, 58, 0.07); stroke-width: 1; }
+.c-axis { stroke: rgba(23, 43, 58, 0.3); stroke-width: 1; }
+.c-tick { fill: var(--text-3); font-size: 12px; }
+.c-unit { fill: var(--text-3); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
+.c-limit { stroke: var(--crit); stroke-width: 1.5; stroke-dasharray: 6 5; }
+.c-limit-label,
+.c-value,
+.c-cross-label {
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke fill;
+  stroke: var(--surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.c-limit-label { fill: var(--crit-strong); }
+.c-value { fill: var(--text); }
+.c-value.is-over { fill: var(--crit-strong); }
+.c-cross-label { fill: var(--crit-strong); font-size: 11.5px; }
+.g-navy-a { stop-color: var(--navy); stop-opacity: 0.08; }
+.g-navy-b { stop-color: var(--navy); stop-opacity: 0; }
+.g-merah-a { stop-color: var(--crit); stop-opacity: 0.2; }
+.g-merah-b { stop-color: var(--crit); stop-opacity: 0.06; }
+.c-area--bawah { fill: url(#gradien-navy); }
+.c-area--atas { fill: url(#gradien-merah); }
+.c-line { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.c-line--bawah { stroke: var(--navy); }
+.c-line--atas { stroke: var(--crit); }
+.c-point { fill: var(--navy); stroke: var(--surface); stroke-width: 2; }
+.c-point.is-over { fill: var(--crit); }
+.c-cross { fill: var(--surface); stroke: var(--crit); stroke-width: 2; }
+.c-guide {
+  stroke: var(--text-2);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.c-halo {
+  fill: none;
+  stroke: var(--navy);
+  stroke-width: 2;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.c-halo.is-over { stroke: var(--crit); }
+.c-guide.is-on { opacity: 0.8; }
+.c-halo.is-on { opacity: 0.35; }
+.c-hit { fill: transparent; cursor: crosshair; }
+
+.chart-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 13rem;
+  padding: 0.8rem 1.1rem;
+  background: var(--navy-dark);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0.8rem 2rem rgba(11, 34, 57, 0.22);
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, calc(-100% - 1.4rem));
+  transition: opacity 0.12s ease;
+}
+.chart-tip.is-on { opacity: 1; }
+.chart-tip.is-below { transform: translate(-50%, 1.4rem); }
+.tip-month { color: rgba(255, 255, 255, 0.72); font-size: 1.1rem; }
+.tip-value { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tip-note { display: inline-flex; align-items: center; gap: 0.6rem; }
+
+.js:not(.statis) .anim-draw {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  animation: gambar-garis 1.1s cubic-bezier(0.45, 0.05, 0.25, 1) 0.35s forwards;
+}
+@keyframes gambar-garis { to { stroke-dashoffset: 0; } }
+.js:not(.statis) .anim-fade { animation: pudar 0.5s ease var(--d, 0s) backwards; }
+@keyframes pudar { from { opacity: 0; } }
+.js:not(.statis) .anim-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: letup 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) var(--d, 0s) backwards;
+}
+@keyframes letup { from { opacity: 0; transform: scale(0); } }
+
+/* ---------- 5. Peringatan ---------- */
+.alert-panel { position: relative; overflow: hidden; }
+.alert-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 0.3rem;
+  background: var(--crit);
+  transform-origin: left center;
+}
+.js:not(.statis) .alert-panel::before { animation: sapu 0.8s var(--ease) 0.35s backwards; }
+@keyframes sapu { from { transform: scaleX(0); } }
+.title-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.6rem;
+  background: var(--crit-tint-2);
+  color: var(--crit-strong);
+}
+.count-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  padding: 0 0.7rem;
+  border-radius: 99rem;
+  background: var(--crit-strong);
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.alert-list,
+.alert { display: flex; flex-direction: column; }
+.alert-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.alert-title {
+  color: var(--text);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.alert-loc { margin-top: 0.3rem; color: var(--text-3); font-size: 1.25rem; }
+.alert-head .pill { flex: none; min-width: 0; margin-top: 0.1rem; }
+.alert-metric {
+  margin-top: 1.6rem;
+  padding: 1.2rem 1.4rem 1rem;
+  background: var(--crit-tint);
+  border: 1px solid rgba(214, 69, 69, 0.18);
+  border-radius: var(--radius-sm);
+}
+.metric-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.metric-value {
+  color: var(--crit-strong);
+  font-size: 4.2rem;
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.metric-unit { margin-left: 0.5rem; color: var(--text-3); font-size: 1.5rem; font-weight: 600; }
+.metric-delta { text-align: right; }
+.delta-value {
+  display: block;
+  color: var(--crit-strong);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.delta-label { color: var(--text-3); font-size: 1.15rem; }
+.gauge {
+  position: relative;
+  height: 0.8rem;
+  margin-top: 1.4rem;
+  border-radius: 0.4rem;
+  background: rgba(23, 43, 58, 0.1);
+}
+.gauge-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(var(--v) * 100%);
+  border-radius: inherit;
+  background: var(--crit);
+  transform-origin: left center;
+}
+.js:not(.statis) .gauge-fill { transition: transform 1s var(--ease) 0.7s; }
+.js:not(.statis):not(.siap) .gauge-fill { transform: scaleX(0); }
+.gauge-mark {
+  position: absolute;
+  top: -0.4rem;
+  bottom: -0.4rem;
+  left: calc(var(--p) * 100%);
+  width: 2px;
+  margin-left: -1px;
+  background: var(--navy-dark);
+}
+.gauge-scale {
+  position: relative;
+  height: 1.6rem;
+  margin-top: 0.5rem;
+  color: var(--text-3);
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+.gauge-scale span { position: absolute; top: 0; white-space: nowrap; transform: translateX(-50%); }
+.gauge-scale span:first-child { transform: none; }
+.gauge-scale span:last-child { transform: translateX(-100%); }
+.facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.7rem 1.2rem;
+  margin-top: 1.6rem;
+  font-size: 1.3rem;
+}
+.facts dt { color: var(--text-3); }
+.facts dd { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.action-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.6rem;
+  padding: 1.1rem 1.2rem;
+  background: var(--navy-tint);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.action-icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  color: var(--navy);
+}
+.action-label { color: var(--text-3); font-size: 1.15rem; }
+.action-text { color: var(--navy-dark); font-size: 1.4rem; font-weight: 600; line-height: 1.35; }
+.alert-actions {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: auto;
+  padding-top: 1.4rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  width: 100%;
+  min-height: 4rem;
+  padding: 0.8rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease,
+    box-shadow 0.18s var(--ease), transform 0.18s var(--ease);
+}
+.btn .ico { transition: transform 0.18s var(--ease); }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn--primary {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #FFFFFF;
+  box-shadow: 0 1px 0 rgba(11, 34, 57, 0.2);
+}
+.btn--primary:hover {
+  background: var(--navy-dark);
+  border-color: var(--navy-dark);
+  box-shadow: 0 0.6rem 1.4rem rgba(11, 34, 57, 0.22);
+}
+.btn--primary:hover .ico { transform: translate(1px, -1px); }
+.btn--secondary { background: var(--surface); color: var(--navy); }
+.btn--secondary:hover { background: var(--navy-tint-2); border-color: var(--navy); }
+.btn--secondary:hover .ico { transform: translateY(1px); }
+.btn:focus-visible { outline: 0.2rem solid var(--info); outline-offset: 0.2rem; }
+
+/* ---------- Kesehatan sistem ---------- */
+.health-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--border);
+}
+.health-row:first-child { padding-top: 0; border-top: 0; }
+.health-row:last-child { padding-bottom: 0; }
+.h-icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.6rem;
+  background: var(--navy-tint-2);
+  color: var(--navy);
+}
+.h-name { flex: 1 1 auto; min-width: 0; font-size: 1.35rem; }
+.h-val {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+}
+.h-val--ok { color: var(--ok-strong); }
+.h-val--info { color: var(--info); }
+
+/* ---------- 6. Footer ---------- */
+.footer {
+  margin-top: 1.4rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-3);
+  font-size: 1.15rem;
+}
+
+/* ---------- Animasi masuk, hanya sekali saat halaman dimuat ---------- */
+.js:not(.statis) .reveal { animation: masuk 0.55s var(--ease) var(--d, 0s) backwards; }
+@keyframes masuk { from { opacity: 0; transform: translateY(0.8rem); } }
+.js:not(.statis) .tanks tbody td { animation: masuk-baris 0.45s var(--ease) var(--d, 0s) backwards; }
+@keyframes masuk-baris { from { opacity: 0; transform: translateX(-0.6rem); } }
+.statis *,
+.statis *::before,
+.statis *::after { transition: none !important; }
+
+/* ---------- Responsif ---------- */
+@media (min-width: 600px) {
+  .stage { padding: 4.8rem 2.4rem 2.4rem; }
+}
+@media (min-width: 900px) {
+  .summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .layout {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-areas:
+      "kpi   kpi"
+      "alert health"
+      "table table"
+      "chart chart";
+  }
+  .health-card { align-self: start; }
+  .chart-wrap { height: 32rem; }
+}
+@media (max-width: 599px) {
+  .card { padding: 1.4rem; }
+  .stat-label { white-space: normal; line-height: 1.25; }
+  .brand-name { font-size: 2.2rem; }
+  .stat-main { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+  .stat-side { align-items: flex-start; }
+  .stat-top { gap: 0.6rem; }
+  .stat-icon { width: 2rem; height: 2rem; }
+  .stat-icon .ico { width: 1.4rem; height: 1.4rem; }
+  .btn { min-height: 4.4rem; }
+  .chart-wrap { height: 26rem; }
+}
+
+/* ---------- Kanvas 16:9 untuk layar lebar lanskap ---------- */
+@media (min-width: 1200px) and (min-aspect-ratio: 13/10) {
+  html { font-size: calc(min(100vw, 177.7778vh) / 160); }
+  html, body { height: 100%; }
+  body { display: grid; place-items: center; overflow: hidden; }
+  .stage {
+    display: flex;
+    flex-direction: column;
+    width: 160rem;
+    height: 90rem;
+    max-width: none;
+    margin: 0;
+    padding: 2.6rem 3.2rem 0;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px var(--border); /* hanya terlihat bila jendela tidak 16:9 */
+  }
+  .ribbon { position: absolute; right: 3.2rem; }
+  .layout {
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) 40rem;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "kpi   rail"
+      "table rail"
+      "chart rail";
+  }
+  .rail {
+    grid-area: rail;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    min-height: 0;
+  }
+  .alert-panel { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
+  .alert-list,
+  .alert { flex: 1 1 auto; min-height: 0; }
+  .health-card { flex: none; align-self: auto; }
+  .chart-card { display: flex; flex-direction: column; min-height: 0; }
+  .chart-wrap { flex: 1 1 auto; height: auto; min-height: 0; }
+  .table-scroll { overflow: visible; }
+  .tanks { table-layout: fixed; }
+  .tanks th,
+  .tanks td.loc { white-space: nowrap; }
+  .col-kode { width: 10%; }
+  .col-lokasi { width: 30%; }
+  .col-air { width: 16%; }
+  .col-suhu { width: 14.5%; }
+  .col-hari { width: 15.5%; }
+  .col-status { width: 14%; }
+  .footer { margin-top: 0.9rem; padding: 0.7rem 0 0.9rem; }
+}
+</style>
+</head>
+<body>
+<main class="stage" aria-label="Dasbor TANGKIS">
+  <div class="ribbon" role="note">DATA CONTOH — BUKAN HASIL PENGUKURAN</div>
+
+  <header class="topbar reveal" style="--d: 0ms">
+    <div class="brand">
+      <h1 class="brand-name">TANGKIS</h1>
+      <p class="brand-sub">Pemantauan Kesiapan Bahan Bakar Genset Cadangan</p>
+    </div>
+    <div class="topbar-meta">
+      <span class="sys-chip" id="status-sistem"></span>
+      <p class="updated">Pembaruan terakhir: <time id="tanggal-pembaruan"></time></p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <section class="summary" id="ringkasan" aria-label="Ringkasan status tangki"></section>
+
+    <section class="card table-card reveal" style="--d: 300ms" aria-labelledby="judul-tabel">
+      <div class="card-head">
+        <h2 class="panel-title" id="judul-tabel">Daftar Tangki</h2>
+        <p class="card-meta" id="legenda-tabel"></p>
+      </div>
+      <p class="scroll-hint">Geser tabel ke samping untuk melihat semua kolom.</p>
+      <div class="table-scroll">
+        <table class="tanks">
+          <colgroup>
+            <col class="col-kode">
+            <col class="col-lokasi">
+            <col class="col-air">
+            <col class="col-suhu">
+            <col class="col-hari">
+            <col class="col-status">
+          </colgroup>
+          <thead>
+            <tr>
+              <th scope="col">Kode Tangki</th>
+              <th scope="col">Lokasi</th>
+              <th scope="col" class="num">Kadar Air (ppm)</th>
+              <th scope="col" class="num">Suhu Rata-rata (°C)</th>
+              <th scope="col" class="num">Hari Sejak Pengisian</th>
+              <th scope="col" class="status">Status</th>
+            </tr>
+          </thead>
+          <tbody id="baris-tangki"></tbody>
+        </table>
+      </div>
+      <p class="threshold-note" id="catatan-ambang"></p>
+    </section>
+
+    <section class="card chart-card reveal" style="--d: 380ms" aria-labelledby="judul-tren">
+      <div class="card-head">
+        <h2 class="panel-title" id="judul-tren"></h2>
+        <ul class="legend" id="legenda-tren" aria-hidden="true"></ul>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-svg" id="grafik-tren" tabindex="0" role="img"></div>
+        <div class="chart-tip" id="tip-tren" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <div class="rail">
+      <aside class="card alert-panel reveal" style="--d: 180ms" aria-labelledby="judul-peringatan">
+        <div class="card-head">
+          <h2 class="panel-title" id="judul-peringatan"><span class="title-icon" id="ikon-peringatan"></span>Peringatan Aktif</h2>
+          <span class="count-badge" id="jumlah-peringatan"></span>
+        </div>
+        <div class="alert-list" id="daftar-peringatan"></div>
+      </aside>
+
+      <section class="card health-card reveal" style="--d: 460ms" aria-labelledby="judul-sistem">
+        <div class="card-head">
+          <h2 class="panel-title" id="judul-sistem">Kesehatan Sistem</h2>
+        </div>
+        <ul class="health-list" id="daftar-sistem"></ul>
+      </section>
+    </div>
+  </div>
+
+  <footer class="footer" id="catatan-kaki"></footer>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ================================================================
+     DATA CONTOH (dipertahankan dari versi sebelumnya)
+     ================================================================ */
+
+  const TANGGAL_PEMBARUAN = { teks: "17 September 2026", iso: "2026-09-17" };
+
+  // Hijau < kuningMulai, Kuning kuningMulai–batas, Merah > batas (ppm)
+  const AMBANG = { kuningMulai: 220, batas: 300 };
+
+  const TANGKI = [
+    { kode: "TK-01", lokasi: "Rumah Sakit A — Tangki Utama",    airPpm: 412, suhuC: 36, hari: 187, status: "MERAH"  },
+    { kode: "TK-02", lokasi: "Rumah Sakit A — Day Tank",        airPpm: 268, suhuC: 34, hari:  42, status: "KUNING" },
+    { kode: "TK-03", lokasi: "Menara Perkantoran B — Basement", airPpm: 195, suhuC: 31, hari:  63, status: "HIJAU"  },
+    { kode: "TK-04", lokasi: "Menara Perkantoran B — Cadangan", airPpm: 241, suhuC: 33, hari:  96, status: "KUNING" },
+    { kode: "TK-05", lokasi: "Pusat Data C — Ruang Genset 1",   airPpm: 158, suhuC: 29, hari:  21, status: "HIJAU"  },
+  ];
+
+  // Teks sesuai brief. Periksa rujukan regulasinya sebelum dipakai di slide.
+  const CATATAN_AMBANG =
+    "Ambang: Hijau di bawah 220 ppm, Kuning 220–300 ppm, Merah di atas 300 ppm. " +
+    "Batas 300 ppm mengacu spesifikasi B50 Kepmen ESDM 257/2026 untuk bahan bakar saat diserahkan.";
+
+  const TREN = {
+    kode: "TK-01",
+    judul: "Tren Kadar Air — TK-01 (Rumah Sakit A, Tangki Utama)",
+    bulan: ["Apr 2026", "Mei 2026", "Jun 2026", "Jul 2026", "Agu 2026", "Sep 2026"],
+    ppm: [232, 261, 294, 331, 376, 412],
+    sumbuY: { min: 200, max: 450, langkah: 50 },
+    labelBatas: (batas) => `Batas spesifikasi ${batas} ppm`,
+  };
+
+  const PERINGATAN = {
+    kode: "TK-01",
+    tenggatPembersihanHari: 14,
+    tombol: [
+      { teks: "Unduh Laporan Bulanan", gaya: "secondary" },
+      { teks: "Kirim Permintaan Pembersihan", gaya: "primary" },
+    ],
+  };
+
+  // Persentase dan jumlah hari dihitung dari data tangki agar selalu konsisten.
+  function teksPeringatan(t) {
+    const persen = persenDiAtasBatas(t.airPpm);
+    return {
+      judul: `${t.kode} melampaui batas kadar air`,
+      isi:
+        `Kadar air ${t.airPpm} ppm, ${persen} persen di atas batas spesifikasi. ` +
+        `Bahan bakar telah mengendap ${t.hari} hari tanpa penggantian. ` +
+        `Direkomendasikan pembersihan tangki dalam ${PERINGATAN.tenggatPembersihanHari} hari.`,
+    };
+  }
+
+  const CATATAN_KAKI =
+    "TANGKIS — prototipe antarmuka. Angka pada halaman ini adalah data contoh untuk keperluan demonstrasi.";
+
+  /* ================================================================
+     TAMBAHAN v2: metadata sistem dan label konteks.
+     Halaman ini tidak terhubung ke sensor. Nilai di bawah adalah bagian
+     dari skenario contoh, sama seperti angka tangki di atas.
+     ================================================================ */
+
+  const WAKTU_SINKRON = { teks: "20.14.32", iso: "2026-09-17T20:14:32" };
+
+  const STATUS_UTAMA = { teks: "SISTEM ONLINE", kondisi: "ok" };
+
+  const STATUS_SISTEM = [
+    { ikon: "sensor",  nama: "Jaringan sensor",   nilai: "ONLINE", kondisi: "ok" },
+    { ikon: "gateway", nama: "Gateway ESP32",     nilai: "ONLINE", kondisi: "ok" },
+    { ikon: "aliran",  nama: "Aliran data",       nilai: "LIVE",   kondisi: "info" },
+    { ikon: "pantau",  nama: "Status pemantauan", nilai: "AKTIF",  kondisi: "ok" },
+  ];
+
+  // Label mikro kartu ringkasan
+  const KONTEKS_KARTU = { KUNING: "Perlu perhatian", MERAH: "Tindakan segera" };
+
+  // Angka 14 hari di PERINGATAN adalah tenggat tindakan, bukan lama peringatan aktif.
+  const REKOMENDASI_TINDAKAN = "Inspeksi dan pembersihan tangki";
+
+  const LABEL_ZONA = { ok: "Normal", warn: "Mendekati batas", crit: "Di atas batas" };
+
+  /* ================================================================
+     Perhitungan
+     ================================================================ */
+
+  function persenDiAtasBatas(ppm) {
+    return Math.round(((ppm - AMBANG.batas) / AMBANG.batas) * 100);
+  }
+
+  const statusMenurutAmbang = (ppm) =>
+    ppm > AMBANG.batas ? "MERAH" : ppm >= AMBANG.kuningMulai ? "KUNING" : "HIJAU";
+
+  const WARNA_STATUS = { HIJAU: "ok", KUNING: "warn", MERAH: "crit" };
+
+  function pisahLokasi(lokasi) {
+    const i = lokasi.indexOf(" — ");
+    return i < 0 ? [lokasi, ""] : [lokasi.slice(0, i), lokasi.slice(i + 3)];
+  }
+
+  const jumlah = (s) => TANGKI.filter((t) => t.status === s).length;
+  const persenDariTotal = (n) => Math.round((n / TANGKI.length) * 100);
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const r1 = (v) => Math.round(v * 10) / 10;
+
+  /* ================================================================
+     Tampilan
+     ================================================================ */
+
+  const html = document.documentElement;
+  const animasi = html.classList.contains("js") && !html.classList.contains("statis");
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  function h(tag, attrs, ...children) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (k === "class") node.className = v;
+      else node.setAttribute(k, v);
+    }
+    for (const c of children.flat()) {
+      if (c === null || c === undefined || c === false) continue;
+      node.append(c instanceof Node ? c : document.createTextNode(String(c)));
+    }
+    return node;
+  }
+
+  function sv(tag, attrs, text) {
+    const node = document.createElementNS(SVG_NS, tag);
+    for (const [k, v] of Object.entries(attrs || {})) node.setAttribute(k, v);
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  const IKON = {
+    tangki: '<ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/>',
+    cek: '<circle cx="12" cy="12" r="8.5"/><path d="M8.2 12.3l2.6 2.6 5-5.3"/>',
+    segitiga: '<path d="M12 4 21 19.5H3z"/><path d="M12 10v4"/><path d="M12 16.8v.2"/>',
+    oktagon: '<path d="M8.4 3.5h7.2l4.9 4.9v7.2l-4.9 4.9H8.4l-4.9-4.9V8.4z"/><path d="M12 8v4.8"/><path d="M12 15.9v.2"/>',
+    sensor: '<circle cx="12" cy="12" r="1.8"/><path d="M8.6 8.6a4.8 4.8 0 0 0 0 6.8"/><path d="M15.4 8.6a4.8 4.8 0 0 1 0 6.8"/><path d="M5.8 5.8a8.8 8.8 0 0 0 0 12.4"/><path d="M18.2 5.8a8.8 8.8 0 0 1 0 12.4"/>',
+    gateway: '<rect x="6.5" y="6.5" width="11" height="11" rx="2"/><rect x="9.8" y="9.8" width="4.4" height="4.4" rx=".6"/><path d="M9.5 3v3.5M14.5 3v3.5M9.5 17.5V21M14.5 17.5V21M3 9.5h3.5M3 14.5h3.5M17.5 9.5H21M17.5 14.5H21"/>',
+    aliran: '<path d="M3 12h3.8l2.4-5.5 4.6 11 2.4-5.5H21"/>',
+    pantau: '<path d="M12 3.2l7 2.8v5.6c0 4.2-2.9 7.9-7 9.2-4.1-1.3-7-5-7-9.2V6z"/><path d="M9.2 12.1l2 2 3.8-3.9"/>',
+    servis: '<path d="M15.2 4.2a4.3 4.3 0 0 0-4.6 5.9l-6.2 6.2a1.9 1.9 0 0 0 2.7 2.7l6.2-6.2a4.3 4.3 0 0 0 5.9-4.6l-2.6 2.6-2.3-.4-.4-2.3z"/>',
+    unduh: '<path d="M12 4.5v10"/><path d="M7.8 10.6 12 14.8l4.2-4.2"/><path d="M5 19h14"/>',
+    kirim: '<path d="M20.5 3.5 10.2 13.8"/><path d="M20.5 3.5 14 20.5l-3.8-6.7L3.5 10z"/>',
+  };
+
+  function ikon(nama) {
+    const el = document.createElementNS(SVG_NS, "svg");
+    el.setAttribute("viewBox", "0 0 24 24");
+    el.setAttribute("class", "ico");
+    el.setAttribute("aria-hidden", "true");
+    el.setAttribute("focusable", "false");
+    el.innerHTML = IKON[nama] || "";
+    return el;
+  }
+
+  function hitungNaik(el, target, tunda) {
+    if (!animasi) { el.textContent = pad2(target); return; }
+    const durasi = 700;
+    const mulai = performance.now() + tunda;
+    el.textContent = pad2(0);
+    const langkah = (sekarang) => {
+      const p = Math.min(1, Math.max(0, (sekarang - mulai) / durasi));
+      el.textContent = pad2(Math.round(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(langkah);
+    };
+    requestAnimationFrame(langkah);
+  }
+
+  // 1. Header dan teks statis
+  const elTanggal = document.getElementById("tanggal-pembaruan");
+  elTanggal.textContent = `${TANGGAL_PEMBARUAN.teks}, ${WAKTU_SINKRON.teks}`;
+  elTanggal.setAttribute("datetime", WAKTU_SINKRON.iso);
+  document.getElementById("status-sistem").append(
+    h("span", { class: `led led--${STATUS_UTAMA.kondisi} led--pulse`, "aria-hidden": "true" }),
+    STATUS_UTAMA.teks
+  );
+  document.getElementById("catatan-ambang").textContent = CATATAN_AMBANG;
+  document.getElementById("judul-tren").textContent = TREN.judul;
+  document.getElementById("catatan-kaki").textContent = CATATAN_KAKI;
+
+  // 2. Ringkasan, dihitung dari tabel
+  const jumlahLokasi = new Set(TANGKI.map((t) => pisahLokasi(t.lokasi)[0])).size;
+  const RINGKASAN = [
+    { nilai: TANGKI.length, label: "Total tangki dipantau", ikon: "tangki",
+      mikro: `di ${jumlahLokasi} lokasi`, segmen: TANGKI.map((t) => t.status.toLowerCase()) },
+    { nilai: jumlah("HIJAU"), label: "Status hijau", status: "hijau", ikon: "cek",
+      mikro: `${persenDariTotal(jumlah("HIJAU"))}% dari total` },
+    { nilai: jumlah("KUNING"), label: "Status kuning", status: "kuning", ikon: "segitiga",
+      mikro: KONTEKS_KARTU.KUNING },
+    { nilai: jumlah("MERAH"), label: "Status merah", status: "merah", ikon: "oktagon",
+      mikro: KONTEKS_KARTU.MERAH },
+  ];
+  const elRingkasan = document.getElementById("ringkasan");
+  RINGKASAN.forEach((r, i) => {
+    const segmen = r.segmen || TANGKI.map((_, k) => (k < r.nilai ? r.status : null));
+    const elNilai = h("span", { class: "stat-value", "aria-hidden": "true" }, pad2(r.nilai));
+    elRingkasan.append(
+      h("div", { class: `stat stat--${r.status || "total"} reveal`, style: `--d: ${60 + i * 70}ms` },
+        h("div", { class: "stat-top" },
+          h("span", { class: "stat-icon" }, ikon(r.ikon)),
+          h("span", { class: "stat-label" }, r.label)),
+        h("div", { class: "stat-main" },
+          elNilai,
+          h("span", { class: "sr-only" }, `${r.nilai} tangki`),
+          h("div", { class: "stat-side" },
+            h("span", { class: "segbar", "aria-hidden": "true" },
+              segmen.map((s, k) => h("span", {
+                class: s ? `seg seg--${s} anim-fade` : "seg",
+                style: `--d: ${360 + i * 70 + k * 40}ms`,
+              }))),
+            h("span", { class: "stat-micro" }, r.mikro))))
+    );
+    hitungNaik(elNilai, r.nilai, 220 + i * 70);
+  });
+
+  // 3. Tabel
+  const skalaPpm = TREN.sumbuY.max;
+  const elBaris = document.getElementById("baris-tangki");
+  TANGKI.forEach((t, i) => {
+    const s = t.status.toLowerCase();
+    const warna = WARNA_STATUS[t.status];
+    const [situs, unit] = pisahLokasi(t.lokasi);
+    elBaris.append(
+      h("tr", { class: `row row--${s}${s === "merah" ? " is-merah" : ""}`, style: `--d: ${380 + i * 60}ms` },
+        h("td", { class: "code" }, t.kode),
+        h("td", { class: "loc" }, situs, unit ? h("span", { class: "loc-unit" }, ` — ${unit}`) : null),
+        h("td", { class: "num" },
+          h("div", { class: "ppm-cell" },
+            h("span", {
+              class: "mini",
+              "aria-hidden": "true",
+              style: `--c: var(--${warna}); --v: ${Math.min(1, t.airPpm / skalaPpm)}`,
+            },
+              h("span", { class: "mini-fill" }),
+              h("span", { class: "mini-mark", style: `--p: ${AMBANG.batas / skalaPpm}` })),
+            h("span", { class: "val" }, t.airPpm))),
+        h("td", { class: "num" }, t.suhuC),
+        h("td", { class: "num" }, t.hari),
+        h("td", { class: "status" },
+          h("span", { class: `pill pill--${s}` },
+            h("span", {
+              class: s === "merah" ? "led led--putih led--pulse" : `led led--${warna}`,
+              "aria-hidden": "true",
+            }),
+            t.status)))
+    );
+  });
+  document.getElementById("legenda-tabel").append(
+    h("span", { class: "lg-bar", "aria-hidden": "true", style: `--p: ${AMBANG.batas / skalaPpm}` }),
+    `Batang kadar air, penanda merah di ${AMBANG.batas} ppm`
+  );
+
+  // 5. Peringatan
+  const elDaftarPeringatan = document.getElementById("daftar-peringatan");
+  const tangkiPeringatan = TANGKI.find((t) => t.kode === PERINGATAN.kode);
+  document.getElementById("ikon-peringatan").append(ikon("segitiga"));
+  const elJumlahPeringatan = document.getElementById("jumlah-peringatan");
+  elJumlahPeringatan.textContent = tangkiPeringatan ? "1" : "0";
+  elJumlahPeringatan.setAttribute("aria-label", `${elJumlahPeringatan.textContent} peringatan aktif`);
+  if (tangkiPeringatan) {
+    const t = tangkiPeringatan;
+    const p = teksPeringatan(t);
+    const IKON_TOMBOL = { primary: "kirim", secondary: "unduh" };
+    const tombol = [...PERINGATAN.tombol].sort(
+      (a, b) => Number(b.gaya === "primary") - Number(a.gaya === "primary")
+    );
+    elDaftarPeringatan.append(
+      h("article", { class: "alert", "aria-describedby": "ringkasan-peringatan" },
+        h("div", { class: "alert-head" },
+          h("div", {},
+            h("h3", { class: "alert-title" }, p.judul),
+            h("p", { class: "alert-loc" }, t.lokasi)),
+          h("span", { class: "pill pill--merah" },
+            h("span", { class: "led led--putih led--pulse", "aria-hidden": "true" }),
+            t.status)),
+        h("p", { class: "sr-only", id: "ringkasan-peringatan" }, p.isi),
+        h("div", { class: "alert-metric" },
+          h("div", { class: "metric-row" },
+            h("p", {},
+              h("span", { class: "metric-value" }, t.airPpm),
+              h("span", { class: "metric-unit" }, "ppm")),
+            h("p", { class: "metric-delta" },
+              h("span", { class: "delta-value" }, `+${persenDiAtasBatas(t.airPpm)}%`),
+              h("span", { class: "delta-label" }, `di atas batas ${AMBANG.batas} ppm`))),
+          h("div", {
+            class: "gauge",
+            "aria-hidden": "true",
+            style: `--v: ${Math.min(1, t.airPpm / skalaPpm)}; --p: ${AMBANG.batas / skalaPpm}`,
+          },
+            h("span", { class: "gauge-fill" }),
+            h("span", { class: "gauge-mark" })),
+          h("div", { class: "gauge-scale", "aria-hidden": "true" },
+            h("span", { style: "left: 0" }, "0"),
+            h("span", { style: `left: ${r1((AMBANG.batas / skalaPpm) * 100)}%` }, `Batas ${AMBANG.batas}`),
+            h("span", { style: "left: 100%" }, `${skalaPpm} ppm`))),
+        h("dl", { class: "facts" },
+          h("dt", {}, "Mengendap tanpa penggantian"),
+          h("dd", {}, `${t.hari} hari`),
+          h("dt", {}, "Tenggat tindakan"),
+          h("dd", {}, `${PERINGATAN.tenggatPembersihanHari} hari`)),
+        h("div", { class: "action-box" },
+          h("span", { class: "action-icon" }, ikon("servis")),
+          h("div", {},
+            h("p", { class: "action-label" }, "Rekomendasi tindakan"),
+            h("p", { class: "action-text" }, REKOMENDASI_TINDAKAN))),
+        h("div", { class: "alert-actions" },
+          tombol.map((b) =>
+            h("button", { type: "button", class: `btn btn--${b.gaya}` }, ikon(IKON_TOMBOL[b.gaya]), b.teks))))
+    );
+  }
+
+  // Kesehatan sistem
+  const elSistem = document.getElementById("daftar-sistem");
+  for (const s of STATUS_SISTEM) {
+    elSistem.append(
+      h("li", { class: "health-row" },
+        h("span", { class: "h-icon" }, ikon(s.ikon)),
+        h("span", { class: "h-name" }, s.nama),
+        h("span", { class: `h-val h-val--${s.kondisi}` },
+          h("span", { class: `led led--${s.kondisi}`, "aria-hidden": "true" }),
+          s.nilai))
+    );
+  }
+
+  // 4. Grafik tren (SVG inline, tajam di semua ukuran, tanpa pustaka)
+  document.getElementById("legenda-tren").append(
+    h("li", {}, h("span", { class: "lg-line" }), "Kadar air"),
+    h("li", {}, h("span", { class: "lg-dash" }), `Batas ${AMBANG.batas} ppm`),
+    h("li", {}, h("span", { class: "lg-dot" }), "Di atas batas")
+  );
+
+  // Interpolasi monoton (Fritsch–Carlson): kurva halus tanpa puncak palsu di antara titik
+  function tangenMonoton(xs, ys) {
+    const n = xs.length;
+    const m = new Array(n).fill(0);
+    if (n < 2) return m;
+    const d = [];
+    for (let k = 0; k < n - 1; k++) d.push((ys[k + 1] - ys[k]) / (xs[k + 1] - xs[k]));
+    m[0] = d[0];
+    m[n - 1] = d[n - 2];
+    for (let k = 1; k < n - 1; k++) m[k] = d[k - 1] * d[k] <= 0 ? 0 : (d[k - 1] + d[k]) / 2;
+    for (let k = 0; k < n - 1; k++) {
+      if (d[k] === 0) { m[k] = 0; m[k + 1] = 0; continue; }
+      const a = m[k] / d[k];
+      const b = m[k + 1] / d[k];
+      const s = a * a + b * b;
+      if (s > 9) {
+        const t = 3 / Math.sqrt(s);
+        m[k] = t * a * d[k];
+        m[k + 1] = t * b * d[k];
+      }
+    }
+    return m;
+  }
+
+  function jalurMonoton(xs, ys, m) {
+    let d = `M${xs[0]} ${ys[0]}`;
+    for (let k = 0; k < xs.length - 1; k++) {
+      const j = (xs[k + 1] - xs[k]) / 3;
+      d += ` C${r1(xs[k] + j)} ${r1(ys[k] + m[k] * j)} ${r1(xs[k + 1] - j)} ${r1(ys[k + 1] - m[k + 1] * j)} ${xs[k + 1]} ${ys[k + 1]}`;
+    }
+    return d;
+  }
+
+  function nilaiHermite(xs, ys, m, k, xq) {
+    const hk = xs[k + 1] - xs[k];
+    const t = (xq - xs[k]) / hk;
+    const t2 = t * t;
+    const t3 = t2 * t;
+    return (2 * t3 - 3 * t2 + 1) * ys[k] + (t3 - 2 * t2 + t) * hk * m[k] +
+      (-2 * t3 + 3 * t2) * ys[k + 1] + (t3 - t2) * hk * m[k + 1];
+  }
+
+  function cariPerlintasan(xs, ys, m, yBatas) {
+    for (let k = 0; k < TREN.ppm.length - 1; k++) {
+      if ((TREN.ppm[k] - AMBANG.batas) * (TREN.ppm[k + 1] - AMBANG.batas) >= 0) continue;
+      const f = (xq) => nilaiHermite(xs, ys, m, k, xq) - yBatas;
+      const tandaAwal = f(xs[k]) > 0;
+      let lo = xs[k];
+      let hi = xs[k + 1];
+      for (let it = 0; it < 40; it++) {
+        const tengah = (lo + hi) / 2;
+        if ((f(tengah) > 0) === tandaAwal) lo = tengah;
+        else hi = tengah;
+      }
+      return { x: (lo + hi) / 2, k };
+    }
+    return null;
+  }
+
+  const elGrafik = document.getElementById("grafik-tren");
+  const elTip = document.getElementById("tip-tren");
+  let grafikSudahDianimasikan = false;
+  let geometri = null;
+  let indeksAktif = -1;
+
+  function gambarTren(wadah) {
+    // Satuan koordinat = px desain (1 unit = 1px saat kanvas 1600px)
+    const remPx = parseFloat(getComputedStyle(html).fontSize) || 10;
+    const skala = remPx / 10;
+    const kotak = wadah.getBoundingClientRect();
+    if (!kotak.width || !kotak.height) return;
+
+    const W = r1(kotak.width / skala);
+    const H = r1(kotak.height / skala);
+    const sempit = W < 560;
+    const m = { atas: 30, kanan: 14, bawah: 30, kiri: 50 };
+    const lebar = W - m.kiri - m.kanan;
+    const tinggi = H - m.atas - m.bawah;
+    const { min, max, langkah } = TREN.sumbuY;
+    const n = TREN.ppm.length;
+    const pita = lebar / n;
+    const x = (i) => r1(m.kiri + pita * (i + 0.5));
+    const y = (v) => r1(m.atas + tinggi * (1 - (Math.min(max, Math.max(min, v)) - min) / (max - min)));
+    const kanan = r1(m.kiri + lebar);
+    const bawah = r1(m.atas + tinggi);
+    const yBatas = y(AMBANG.batas);
+    const yKuning = y(AMBANG.kuningMulai);
+    const anim = animasi && !grafikSudahDianimasikan;
+    const kelas = (dasar, efek) => (anim && efek ? `${dasar} ${efek}`.trim() : dasar);
+    const tundaTitik = (i) => Math.round(350 + (n > 1 ? i / (n - 1) : 0) * 1100);
+
+    const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, "aria-hidden": "true", focusable: "false" });
+
+    // Gradien area dan potongan kurva di garis batas
+    const defs = sv("defs");
+    const gradienNavy = sv("linearGradient", {
+      id: "gradien-navy", gradientUnits: "userSpaceOnUse", x1: 0, x2: 0, y1: yBatas, y2: bawah,
+    });
+    gradienNavy.append(sv("stop", { offset: "0", class: "g-navy-a" }), sv("stop", { offset: "1", class: "g-navy-b" }));
+    const gradienMerah = sv("linearGradient", {
+      id: "gradien-merah", gradientUnits: "userSpaceOnUse", x1: 0, x2: 0, y1: m.atas, y2: yBatas,
+    });
+    gradienMerah.append(sv("stop", { offset: "0", class: "g-merah-a" }), sv("stop", { offset: "1", class: "g-merah-b" }));
+    const klipAtas = sv("clipPath", { id: "klip-atas" });
+    klipAtas.append(sv("rect", { x: 0, y: -10, width: W, height: r1(yBatas + 10) }));
+    const klipBawah = sv("clipPath", { id: "klip-bawah" });
+    klipBawah.append(sv("rect", { x: 0, y: yBatas, width: W, height: r1(H - yBatas + 10) }));
+    defs.append(gradienNavy, gradienMerah, klipAtas, klipBawah);
+    svg.append(defs);
+
+    // Zona: normal, mendekati batas, di atas batas
+    const gZona = sv("g", { class: kelas("c-bands", "anim-fade"), style: "--d: 0ms" });
+    const zona = [
+      { id: "ok", dari: yKuning, sampai: bawah },
+      { id: "warn", dari: yBatas, sampai: yKuning },
+      { id: "crit", dari: m.atas, sampai: yBatas },
+    ];
+    for (const z of zona) {
+      if (z.sampai - z.dari <= 0) continue;
+      gZona.append(sv("rect", {
+        x: m.kiri, y: z.dari, width: r1(lebar), height: r1(z.sampai - z.dari), class: `c-band c-band--${z.id}`,
+      }));
+    }
+    svg.append(gZona);
+
+    // Kisi dan label sumbu Y
+    for (let v = min; v <= max; v += langkah) {
+      const yy = y(v);
+      if (v !== AMBANG.batas) {
+        svg.append(sv("line", { x1: m.kiri, x2: kanan, y1: yy, y2: yy, class: v === min ? "c-axis" : "c-grid" }));
+      }
+      svg.append(sv("text", { x: m.kiri - 10, y: r1(yy + 4), "text-anchor": "end", class: "c-tick" }, String(v)));
+    }
+    svg.append(sv("text", { x: m.kiri - 10, y: m.atas - 17, "text-anchor": "end", class: "c-unit" }, "ppm"));
+
+    // Label bulan
+    const labelPendek = pita < 78;
+    TREN.bulan.forEach((b, i) => {
+      svg.append(sv("text", { x: x(i), y: r1(bawah + 20), "text-anchor": "middle", class: "c-tick" },
+        labelPendek ? b.split(" ")[0] : b));
+    });
+
+    // Label zona di sisi kanan
+    if (!sempit) {
+      const gLabel = sv("g", { class: kelas("c-band-labels", "anim-fade"), style: "--d: 200ms" });
+      const labelZona = [
+        { id: "crit", y: yBatas - 8 },
+        { id: "warn", y: yBatas + 16 },
+        { id: "ok", y: bawah - 5, perlu: bawah - yKuning >= 14 },
+      ];
+      for (const l of labelZona) {
+        if (l.perlu === false) continue;
+        gLabel.append(sv("text", {
+          x: kanan - 8, y: r1(l.y), "text-anchor": "end", class: `c-band-label c-band-label--${l.id}`,
+        }, LABEL_ZONA[l.id]));
+      }
+      svg.append(gLabel);
+    }
+
+    // Garis batas spesifikasi
+    svg.append(sv("line", {
+      x1: m.kiri, x2: kanan, y1: yBatas, y2: yBatas, class: kelas("c-limit", "anim-fade"), style: "--d: 150ms",
+    }));
+    svg.append(sv("text", {
+      x: m.kiri + 8, y: r1(yBatas - 7), class: kelas("c-limit-label", "anim-fade"), style: "--d: 250ms",
+    }, sempit ? `Batas ${AMBANG.batas} ppm` : TREN.labelBatas(AMBANG.batas)));
+
+    // Kurva: navy di bawah batas, merah di atas batas
+    const xs = TREN.ppm.map((_, i) => x(i));
+    const ys = TREN.ppm.map((v) => y(v));
+    const tangen = tangenMonoton(xs, ys);
+    const d = jalurMonoton(xs, ys, tangen);
+    const garisBantu = sv("line", { x1: 0, x2: 0, y1: m.atas, y2: bawah, class: "c-guide" });
+    const dArea = `${d} L${xs[n - 1]} ${bawah} L${xs[0]} ${bawah} Z`;
+    svg.append(sv("path", {
+      d: dArea, "clip-path": "url(#klip-bawah)", class: kelas("c-area c-area--bawah", "anim-fade"), style: "--d: 900ms",
+    }));
+    svg.append(sv("path", {
+      d: dArea, "clip-path": "url(#klip-atas)", class: kelas("c-area c-area--atas", "anim-fade"), style: "--d: 900ms",
+    }));
+    svg.append(garisBantu);
+    svg.append(sv("path", { d, pathLength: 1, "clip-path": "url(#klip-bawah)", class: kelas("c-line c-line--bawah", "anim-draw") }));
+    svg.append(sv("path", { d, pathLength: 1, "clip-path": "url(#klip-atas)", class: kelas("c-line c-line--atas", "anim-draw") }));
+
+    // Titik ketika kurva melewati batas
+    const silang = cariPerlintasan(xs, ys, tangen, yBatas);
+    if (silang) {
+      const fraksi = (silang.x - xs[0]) / ((xs[n - 1] - xs[0]) || 1);
+      const tunda = Math.round(350 + fraksi * 1100);
+      svg.append(sv("circle", {
+        cx: r1(silang.x), cy: yBatas, r: 5, class: kelas("c-cross", "anim-pop"), style: `--d: ${tunda}ms`,
+      }));
+      if (!sempit) {
+        const awal = TREN.bulan[silang.k].split(" ")[0];
+        const akhir = TREN.bulan[silang.k + 1].split(" ")[0];
+        svg.append(sv("text", {
+          x: r1(silang.x + 12), y: r1(yBatas + 20), class: kelas("c-cross-label", "anim-fade"),
+          style: `--d: ${tunda + 120}ms`,
+        }, `Melewati batas antara ${awal} dan ${akhir}`));
+      }
+    }
+
+    // Titik data dan nilainya
+    TREN.ppm.forEach((v, i) => {
+      const lewat = v > AMBANG.batas;
+      const tunda = tundaTitik(i);
+      svg.append(sv("circle", {
+        cx: xs[i], cy: ys[i], r: 4.5, class: kelas(lewat ? "c-point is-over" : "c-point", "anim-pop"),
+        style: `--d: ${tunda}ms`,
+      }));
+      // Label menjauhi garis batas: di atas titik bila lewat batas, di bawah bila belum
+      svg.append(sv("text", {
+        x: xs[i], y: r1(lewat ? ys[i] - 12 : ys[i] + 21), "text-anchor": "middle",
+        class: kelas(lewat ? "c-value is-over" : "c-value", "anim-fade"), style: `--d: ${tunda + 80}ms`,
+      }, String(v)));
+    });
+
+    const halo = sv("circle", { cx: 0, cy: 0, r: 9, class: "c-halo" });
+    svg.append(halo, sv("rect", { x: m.kiri, y: m.atas, width: r1(lebar), height: r1(tinggi), class: "c-hit" }));
+
+    wadah.replaceChildren(svg);
+    geometri = { xs, ys, skala, garisBantu, halo };
+    if (anim) grafikSudahDianimasikan = true;
+    if (indeksAktif >= 0) tampilkanTip(indeksAktif);
+  }
+
+  function tampilkanTip(i) {
+    if (!geometri || i < 0 || i >= TREN.ppm.length) return;
+    indeksAktif = i;
+    const v = TREN.ppm[i];
+    const { xs, ys, skala, garisBantu, halo } = geometri;
+    garisBantu.setAttribute("x1", xs[i]);
+    garisBantu.setAttribute("x2", xs[i]);
+    garisBantu.classList.add("is-on");
+    halo.setAttribute("cx", xs[i]);
+    halo.setAttribute("cy", ys[i]);
+    halo.classList.add("is-on");
+    halo.classList.toggle("is-over", v > AMBANG.batas);
+
+    const catatan = v > AMBANG.batas
+      ? `${persenDiAtasBatas(v)}% di atas batas`
+      : v === AMBANG.batas ? "Tepat di batas" : `${AMBANG.batas - v} ppm di bawah batas`;
+    elTip.replaceChildren(
+      h("span", { class: "tip-month" }, TREN.bulan[i]),
+      h("span", { class: "tip-value" }, `${v} ppm`),
+      h("span", { class: "tip-note" },
+        h("span", { class: `led led--${WARNA_STATUS[statusMenurutAmbang(v)]}`, "aria-hidden": "true" }),
+        catatan)
+    );
+    elTip.classList.add("is-on");
+
+    const lebarWadah = elGrafik.clientWidth;
+    const lebarTip = elTip.offsetWidth;
+    const titikX = xs[i] * skala;
+    const titikY = ys[i] * skala;
+    const kiri = Math.min(Math.max(titikX, lebarTip / 2 + 4), lebarWadah - lebarTip / 2 - 4);
+    elTip.classList.toggle("is-below", titikY < elTip.offsetHeight + 20);
+    elTip.style.left = `${r1(kiri)}px`;
+    elTip.style.top = `${r1(titikY)}px`;
+  }
+
+  function sembunyikanTip() {
+    indeksAktif = -1;
+    elTip.classList.remove("is-on");
+    if (geometri) {
+      geometri.garisBantu.classList.remove("is-on");
+      geometri.halo.classList.remove("is-on");
+    }
+  }
+
+  function indeksTerdekat(clientX) {
+    if (!geometri) return -1;
+    const kotak = elGrafik.getBoundingClientRect();
+    const xDesain = (clientX - kotak.left) / geometri.skala;
+    let terbaik = 0;
+    geometri.xs.forEach((px, i) => {
+      if (Math.abs(px - xDesain) < Math.abs(geometri.xs[terbaik] - xDesain)) terbaik = i;
+    });
+    return terbaik;
+  }
+
+  elGrafik.setAttribute("aria-label",
+    `${TREN.judul}. ${TREN.bulan.map((b, i) => `${b} ${TREN.ppm[i]} ppm`).join(", ")}. ` +
+    `Batas ${AMBANG.batas} ppm. Gunakan tombol panah kiri dan kanan untuk menelusuri titik.`);
+  elGrafik.addEventListener("pointermove", (e) => tampilkanTip(indeksTerdekat(e.clientX)));
+  elGrafik.addEventListener("pointerdown", (e) => tampilkanTip(indeksTerdekat(e.clientX)));
+  elGrafik.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") sembunyikanTip(); });
+  elGrafik.addEventListener("blur", sembunyikanTip);
+  document.addEventListener("pointerdown", (e) => { if (!elGrafik.contains(e.target)) sembunyikanTip(); });
+  elGrafik.addEventListener("keydown", (e) => {
+    const n = TREN.ppm.length;
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      const arah = e.key === "ArrowRight" ? 1 : -1;
+      const awal = indeksAktif < 0 ? (arah > 0 ? -1 : n) : indeksAktif;
+      tampilkanTip(Math.min(n - 1, Math.max(0, awal + arah)));
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      tampilkanTip(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      tampilkanTip(n - 1);
+    } else if (e.key === "Escape") {
+      sembunyikanTip();
+    }
+  });
+
+  let ukuranGrafik = "";
+  function gambarUlangBilaPerlu() {
+    const k = elGrafik.getBoundingClientRect();
+    const kunci = `${Math.round(k.width)}x${Math.round(k.height)}`;
+    if (kunci === ukuranGrafik) return;
+    ukuranGrafik = kunci;
+    gambarTren(elGrafik);
+  }
+  gambarUlangBilaPerlu();
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(gambarUlangBilaPerlu).observe(elGrafik);
+  } else {
+    window.addEventListener("resize", gambarUlangBilaPerlu);
+  }
+
+  // Mulai transisi batang setelah tampilan awal tergambar
+  if (animasi) {
+    requestAnimationFrame(() => requestAnimationFrame(() => html.classList.add("siap")));
+  } else {
+    html.classList.add("siap");
+  }
+
+  /* ================================================================
+     Pemeriksaan konsistensi data (hasil muncul di konsol browser)
+     ================================================================ */
+  for (const t of TANGKI) {
+    const seharusnya = statusMenurutAmbang(t.airPpm);
+    if (seharusnya !== t.status) {
+      console.warn(`[TANGKIS] ${t.kode}: status tertulis ${t.status}, menurut ambang ${seharusnya}.`);
+    }
+  }
+  const tangkiTren = TANGKI.find((t) => t.kode === TREN.kode);
+  const titikAkhir = TREN.ppm[TREN.ppm.length - 1];
+  if (tangkiTren && tangkiTren.airPpm !== titikAkhir) {
+    console.warn(`[TANGKIS] Titik akhir tren ${TREN.kode} (${titikAkhir}) berbeda dengan tabel (${tangkiTren.airPpm}).`);
+  }
+  if (TREN.bulan.length !== TREN.ppm.length) {
+    console.warn("[TANGKIS] Jumlah label bulan tidak sama dengan jumlah nilai tren.");
+  }
+  if (jumlah("HIJAU") + jumlah("KUNING") + jumlah("MERAH") !== TANGKI.length) {
+    console.warn("[TANGKIS] Ada tangki dengan status di luar HIJAU, KUNING, atau MERAH.");
+  }
+})();
+</script>
+</body>
+</html>
