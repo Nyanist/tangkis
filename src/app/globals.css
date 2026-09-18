@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #172b3a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* ponytail: LED dots only — full demodashboard.css if pixel-parity needed */
+.led {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.led--ok { color: #2e8b57; }
+.led--warn { color: #e9a21b; }
+.led--info { color: #2f6fed; }
+.led--putih { color: #fff; }
+.led--pulse::after {
+  content: "";
+  position: absolute;
+  inset: -0.22rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  animation: denyut 2.4s ease-out infinite;
+}
+@keyframes denyut {
+  0% { opacity: 0.6; transform: scale(0.55); }
+  70%, 100% { opacity: 0; transform: scale(1.7); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .led--pulse::after { animation: none; opacity: 0.3; }
+}
