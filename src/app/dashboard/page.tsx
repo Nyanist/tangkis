@@ -12,8 +12,8 @@ export const metadata = {
 
 export default function DashboardPage() {
   return (
-    <main className="mx-auto min-h-screen max-w-[1440px] bg-[#F4F7FA] p-4 text-[#172B3A] md:p-8">
-      <div className="fixed right-4 top-0 z-30 rounded-b border border-[#E9A21B]/50 bg-[#FBEED6] px-3 py-1 text-xs font-bold">
+    <main className="mx-auto min-h-screen max-w-[1440px] bg-[#F4F7FA] p-4 pt-24 text-[#172B3A] md:p-8 md:pt-28 lg:pt-32">
+      <div className="fixed right-4 top-16 z-30 lg:top-0 rounded-b border border-[#E9A21B]/50 bg-[#FBEED6] px-3 py-1 text-xs font-bold">
         DATA CONTOH — BUKAN HASIL PENGUKURAN
       </div>
       <DashboardTopbar />

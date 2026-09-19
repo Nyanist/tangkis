@@ -26,7 +26,7 @@ export default function AlertPanel() {
 
       <div className="mt-4 rounded-md border border-[#D64545]/20 bg-[#D64545]/[.06] p-3">
         <div className="flex items-end justify-between">
-          <p><span className="text-4xl font-bold tabular-nums text-[#B83232]">{t.airPpm}</span><span className="ml-1 text-sm font-semibold text-[#5A6B7B]">ppm</span></p>
+          <p><span className="text-3xl font-bold tabular-nums text-[#B83232] md:text-4xl">{t.airPpm}</span><span className="ml-1 text-sm font-semibold text-[#5A6B7B]">ppm</span></p>
           <p className="text-right">
             <span className="block text-xl font-bold tabular-nums text-[#B83232]">+{pct}%</span>
             <span className="text-xs text-[#5A6B7B]">di atas batas {AMBANG.batas} ppm</span>

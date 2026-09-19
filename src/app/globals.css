@@ -12,6 +12,33 @@ body {
   background: var(--background);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 20s linear infinite; }
+
+.accordion-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s ease;
+}
+.accordion-content[data-open="true"] { grid-template-rows: 1fr; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-marquee { animation: none; }
+}
+
+/* ponytail: notch/home-indicator padding only on devices that need it */
+@supports (padding: env(safe-area-inset-bottom)) {
+  footer { padding-bottom: env(safe-area-inset-bottom); }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

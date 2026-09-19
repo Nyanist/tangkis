@@ -1,30 +1,48 @@
 "use client";
 import Link from "next/link";
+import { ChevronsDown } from "lucide-react";
 import FadeUp from "@/components/motion/FadeUp";
 import { product } from "@/lib/data/product";
 
 export default function HeroSection() {
   return (
-    <section className="mx-auto flex min-h-[85vh] max-w-6xl flex-col items-center justify-center px-4 py-16 text-center">
-      <FadeUp>
-        <p className="text-sm font-bold uppercase tracking-widest text-blue-600">{product.name}</p>
-      </FadeUp>
-      <FadeUp delay={0.15}>
-        <h1 className="mt-4 max-w-3xl text-4xl font-extrabold leading-tight md:text-6xl">
-          {product.tagline}
-        </h1>
-      </FadeUp>
-      <FadeUp delay={0.3}>
-        <p className="mt-6 max-w-2xl text-lg text-slate-600">{product.description}</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link href="/dashboard" className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700">
-            Lihat Dashboard
-          </Link>
-          <Link href="/about" className="rounded-lg border px-6 py-3 font-semibold text-slate-700 hover:bg-slate-100">
-            Tentang Kami
-          </Link>
+    <section className="lg:p-3">
+      <div className="relative flex h-[100dvh] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 px-6 text-center text-white lg:items-start lg:justify-start lg:rounded-3xl lg:px-10 lg:text-left">
+        <div className="w-full max-w-3xl px-4 md:px-0 lg:mt-[clamp(7rem,18vh,9.5rem)]">
+          <FadeUp>
+            <p className="inline-block rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
+              {product.name}
+            </p>
+          </FadeUp>
+          <FadeUp delay={0.15}>
+            <h1 className="mt-6 text-4xl font-extrabold leading-tight md:text-6xl">{product.tagline}</h1>
+          </FadeUp>
+          <FadeUp delay={0.3}>
+            <p className="mt-6 max-w-2xl text-lg text-slate-300">{product.description}</p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+              <Link
+                href="/dashboard"
+                className="rounded-full bg-white px-6 py-3 font-semibold text-slate-900 hover:bg-slate-200"
+              >
+                Lihat Dashboard
+              </Link>
+              <Link
+                href="/about"
+                className="rounded-full border border-white/20 bg-white/10 px-6 py-3 font-semibold backdrop-blur-sm hover:bg-white/20"
+              >
+                Tentang Kami
+              </Link>
+            </div>
+          </FadeUp>
         </div>
-      </FadeUp>
+        <a
+          href="#masalah"
+          className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 text-xs font-medium uppercase tracking-widest text-white/70 hover:text-white"
+        >
+          Scroll
+          <ChevronsDown className="h-6 w-6 animate-bounce" aria-hidden />
+        </a>
+      </div>
     </section>
   );
 }

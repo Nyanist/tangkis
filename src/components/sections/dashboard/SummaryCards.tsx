@@ -56,7 +56,7 @@ export default function SummaryCards() {
         >
           <p className="truncate text-[11px] font-bold uppercase tracking-wider text-[#5A6B7B]">{c.label}</p>
           <div className="mt-2 flex items-end justify-between gap-2">
-            <span className={`text-4xl font-bold leading-none tabular-nums ${c.valCls}`}>
+            <span className={`text-3xl font-bold leading-none tabular-nums md:text-4xl ${c.valCls}`}>
               {String(c.value).padStart(2, "0")}
             </span>
           </div>

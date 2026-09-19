@@ -120,7 +120,7 @@ export default function TrendChart() {
 
           <line x1={g.xs[active]} x2={g.xs[active]} y1={mg.t} y2={g.bottom} stroke="#6B7C8C" strokeWidth="1" strokeDasharray="3 3" />
         </svg>
-        <div className="pointer-events-none absolute rounded-md bg-[#0B2239] px-3 py-2 text-xs text-white shadow-lg" style={{ left: `${(g.xs[active] / W) * 100}%`, top: 0, transform: "translate(-50%, -10%)" }} role="status">
+        <div className="pointer-events-none absolute rounded-md bg-[#0B2239] px-3 py-2 text-xs text-white shadow-lg" style={{ left: `${Math.max(8, Math.min(92, (g.xs[active] / W) * 100))}%`, top: 0, transform: "translate(-50%, -10%)" }} role="status">
           <span className="opacity-70">{TREN.bulan[active]}</span>
           <span className="block text-base font-bold tabular-nums">{TREN.ppm[active]} ppm</span>
           <span>{over ? `+${Math.round(((TREN.ppm[active] - AMBANG.batas) / AMBANG.batas) * 100)}% di atas batas` : `${AMBANG.batas - TREN.ppm[active]} ppm di bawah batas`}</span>
