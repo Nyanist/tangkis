@@ -22,6 +22,12 @@ html {
 }
 .animate-marquee { animation: marquee 20s linear infinite; }
 
+@keyframes scroll-hint {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(200%); }
+}
+.animate-scroll-hint { animation: scroll-hint 1.6s ease-in-out infinite; }
+
 .accordion-content {
   display: grid;
   grid-template-rows: 0fr;
@@ -31,7 +37,7 @@ html {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .animate-marquee { animation: none; }
+  .animate-marquee, .animate-scroll-hint { animation: none; }
 }
 
 /* ponytail: notch/home-indicator padding only on devices that need it */

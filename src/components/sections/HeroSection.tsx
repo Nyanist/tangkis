@@ -1,10 +1,15 @@
 "use client";
 import Link from "next/link";
-import { ChevronsDown } from "lucide-react";
+import { useScroll, useTransform } from "framer-motion";
+import ScrollHint from "@/components/motion/ScrollHint";
 import FadeUp from "@/components/motion/FadeUp";
 import { product } from "@/lib/data/product";
 
 export default function HeroSection() {
+  // Scroll hint fades out as soon as the user starts scrolling.
+  const { scrollY } = useScroll();
+  const hintOpacity = useTransform(scrollY, [0, 80], [1, 0]);
+
   return (
     <section className="lg:p-3">
       <div className="relative flex h-[100dvh] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 px-6 text-center text-white lg:items-start lg:justify-start lg:rounded-3xl lg:px-10 lg:text-left">
@@ -35,13 +40,7 @@ export default function HeroSection() {
             </div>
           </FadeUp>
         </div>
-        <a
-          href="#latar-belakang"
-          className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 text-xs font-medium uppercase tracking-widest text-white/70 hover:text-white"
-        >
-          Scroll
-          <ChevronsDown className="h-6 w-6 animate-bounce" aria-hidden />
-        </a>
+        <ScrollHint opacity={hintOpacity} className="absolute bottom-8 left-1/2 -translate-x-1/2" />
       </div>
     </section>
   );
