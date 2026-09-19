@@ -36,7 +36,7 @@ export default function HeroSection() {
           </FadeUp>
         </div>
         <a
-          href="#masalah"
+          href="#latar-belakang"
           className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 text-xs font-medium uppercase tracking-widest text-white/70 hover:text-white"
         >
           Scroll
