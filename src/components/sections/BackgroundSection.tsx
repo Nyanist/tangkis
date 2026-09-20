@@ -3,6 +3,7 @@ import { Fuel } from "lucide-react";
 import FadeUp from "@/components/motion/FadeUp";
 import SectionBadge from "@/components/sections/SectionBadge";
 import { background } from "@/lib/data/background";
+import Image from "next/image";
 
 export default function BackgroundSection() {
   return (
@@ -18,10 +19,14 @@ export default function BackgroundSection() {
           </div>
         </FadeUp>
         <FadeUp delay={0.15}>
-          {/* ponytail: gradient placeholder — swap for next/image when a real photo exists */}
-          <div className="relative flex min-h-[24rem] flex-col justify-between overflow-hidden rounded-lg bg-gradient-to-br from-slate-800 to-blue-900 p-6 pb-8 text-white lg:h-[500px]">
-            <Fuel className="h-14 w-14" strokeWidth={1.5} aria-hidden />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="relative min-h-[24rem] overflow-hidden rounded-lg shadow-2xl lg:h-[500px]">
+            <Image
+              src="/s1-pch-img.webp"
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover"
+            />
           </div>
         </FadeUp>
       </div>

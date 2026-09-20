@@ -10,6 +10,20 @@ export default function Footer() {
           <div className="lg:col-span-7">
             <h2 className="text-4xl font-extrabold leading-tight md:text-6xl">{product.tagline}</h2>
             <p className="mt-6 max-w-xl text-slate-400">{product.description}</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href="/dashboard"
+                className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-200"
+              >
+                Lihat Demo Dashboard
+              </Link>
+              <Link
+                href="/about"
+                className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold hover:bg-white/10"
+              >
+                Tentang Kami
+              </Link>
+            </div>
           </div>
           <div className="lg:col-span-5 lg:justify-self-end">
             <div className="flex items-center gap-5">
@@ -27,20 +41,6 @@ export default function Footer() {
                   Data pada situs ini adalah data contoh untuk demonstrasi.
                 </p>
               </div> */}
-            </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="/dashboard"
-                className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-200"
-              >
-                Lihat Demo Dashboard
-              </Link>
-              <Link
-                href="/about"
-                className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold hover:bg-white/10"
-              >
-                Tentang Kami
-              </Link>
             </div>
           </div>
         </div>
@@ -68,7 +68,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10 py-4 text-center text-xs text-slate-500">
-        © 2026 {product.name} — prototipe antarmuka.
+        © 2026 {product.name}. Hak Cipta Dilindungi
       </div>
     </footer>
   );
