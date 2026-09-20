@@ -63,7 +63,7 @@ export default function TrendChart() {
           onKeyDown={(e) => {
             if (e.key === "ArrowRight") setActive((a) => Math.min(n - 1, a + 1));
             if (e.key === "ArrowLeft") setActive((a) => Math.max(0, a - 1));
-            if (e.key === "Home") setActive(0);
+            if (e.key === "Beranda") setActive(0);
             if (e.key === "End") setActive(n - 1);
           }}
         >

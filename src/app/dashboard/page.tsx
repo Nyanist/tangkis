@@ -6,7 +6,7 @@ import AlertPanel from "@/components/sections/dashboard/AlertPanel";
 import SystemHealth from "@/components/sections/dashboard/SystemHealth";
 
 export const metadata = {
-  title: "TANGKIS Dashboard | Pemantauan Kesiapan Bahan Bakar Genset Cadangan",
+  title: "TANGKIS Demo Dashboard | Pemantauan Kesiapan Bahan Bakar Genset Cadangan",
   description: "Pusat pemantauan real-time kesiapan dan kualitas bahan bakar genset cadangan.",
 };
 

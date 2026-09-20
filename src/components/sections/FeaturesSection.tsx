@@ -24,7 +24,7 @@ export default function FeaturesSection() {
                 href="/dashboard"
                 className="mt-6 inline-block rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-200"
               >
-                Buka Dashboard Live
+                Buka Demo Dashboard
               </Link>
             </div>
           </div>

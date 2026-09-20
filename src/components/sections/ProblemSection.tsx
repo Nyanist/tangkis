@@ -11,9 +11,12 @@ type Problem = (typeof problems)[number];
 
 function ProblemCard({ p }: { p: Problem }) {
   return (
-    <div className="relative flex min-h-[24rem] flex-col justify-between overflow-hidden rounded-lg bg-gradient-to-br from-slate-800 to-blue-900 p-6 pb-8 text-white lg:h-[min(500px,50vh)]">
-      <p.icon className="h-14 w-14" strokeWidth={1.5} aria-hidden />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+    <div
+      className="relative flex min-h-[24rem] flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-6 pb-8 text-white lg:h-[min(500px,50vh)]"
+      style={{ backgroundImage: `url(${p.image})` }}
+    >
+      <p.icon className="relative h-14 w-14" strokeWidth={1.5} aria-hidden />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
       <div className="relative">
         <h3 className="text-xl font-semibold">{p.title}</h3>
         <p className="mt-2 text-sm text-slate-200">{p.description}</p>

@@ -1,8 +1,6 @@
 export const background = {
-  title: "Mengapa Kesiapan Bahan Bakar Genset Penting",
+  title: "Risiko Nyata di Balik Genset Cadangan Anda",
   paragraphs: [
-    "Genset cadangan hanya berguna jika bahan bakarnya siap pakai. Solar yang mengendap berbulan-bulan dapat terkontaminasi air, sehingga genset gagal menyala tepat saat listrik padam.",
-    "Pengecekan tangki masih dilakukan manual, jarang, dan tidak terdokumentasi — masalah baru diketahui setelah terlambat.",
-    "TANGKIS memantau kadar air dan suhu bahan bakar secara real-time dengan ambang peringatan 220 dan 300 ppm.",
+    "Genset cadangan sering kali gagal menyala bukan karena kerusakan mesin, melainkan akibat solar yang terdegradasi dan terkontaminasi air selama berbulan-bulan tanpa terdeteksi oleh inspeksi manual. TANGKIS mengeliminasi risiko tersebut dengan memantau kadar air dan suhu tangki secara real-time, lengkap dengan peringatan dini bertahap pada 220 ppm dan 300 ppm agar intervensi dapat dilakukan sebelum sistem mengalami pemadaman total.",
   ],
 };

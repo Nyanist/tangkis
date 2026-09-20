@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 import { product } from "@/lib/data/product";
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/", label: "Beranda" },
+  { href: "/about", label: "Tentang Kami" },
+  { href: "/dashboard", label: "Demo Dashboard" },
 ];
 
 export default function Navbar() {
@@ -65,7 +65,7 @@ export default function Navbar() {
             href="/dashboard"
             className="hidden rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-200 md:block"
           >
-            Lihat Dashboard
+            Lihat Demo Dashboard
           </Link>
           {/* ponytail: plain useState overlay instead of shadcn Sheet — Sheet if menu needs focus-trap */}
           <button

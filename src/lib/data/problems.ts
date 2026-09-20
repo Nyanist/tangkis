@@ -4,22 +4,25 @@ export const problems = [
   {
     id: 1,
     icon: Zap,
-    title: "Genset gagal saat dibutuhkan",
+    image: "/s4-pch-card-1.webp",
+    title: "Kegagalan Start Saat Darurat",
     description:
-      "Bahan bakar yang mengendap berbulan-bulan terkontaminasi air — genset macet tepat saat listrik padam.",
+      "Solar yang mengendap lama memicu kondensasi air di tangki. Filter tersumbat dan genset mogok seketika justru saat suplai listrik PLN terputus.",
   },
   {
     id: 2,
     icon: Lock,
-    title: "Inspeksi manual & sporadis",
+    image: "/s4-pch-card-2.webp",
+    title: "Inspeksi Manual yang Tidak Terukur",
     description:
-      "Pengecekan tangki dilakukan manual, jarang, dan tidak terdokumentasi. Masalah baru ketahuan setelah terlambat.",
+      "Pengambilan sampel fisik berkala memakan waktu, jarang terdokumentasi rapi, dan sering kali terlambat mendeteksi pembusukan bahan bakar.",
   },
   {
     id: 3,
     icon: TrendingDown,
-    title: "Tak ada tren kualitas",
+    image: "/s4-pch-card-3.webp",
+    title: "Perawatan Bersifat Reaktif",
     description:
-      "Tanpa data historis kadar air dan suhu, pengelola tak bisa memprediksi kapan tangki perlu dibersihkan.",
+      "Tanpa data tren kadar air dan suhu harian, tindakan purging atau pembersihan tangki baru dilakukan setelah kontaminasi merusak injektor mesin.",
   },
 ];

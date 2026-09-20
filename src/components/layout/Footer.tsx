@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+// import { ArrowUpRight } from "lucide-react";
 import { product } from "@/lib/data/product";
 
 export default function Footer() {
@@ -13,7 +13,7 @@ export default function Footer() {
           </div>
           <div className="lg:col-span-5 lg:justify-self-end">
             <div className="flex items-center gap-5">
-              <Link
+              {/* <Link
                 href="/dashboard"
                 aria-label="Buka Dashboard Live"
                 className="group relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/30"
@@ -22,18 +22,18 @@ export default function Footer() {
                 <ArrowUpRight className="relative h-7 w-7 transition-colors duration-500 group-hover:text-slate-900" strokeWidth={1.5} aria-hidden />
               </Link>
               <div>
-                <p className="text-lg font-semibold">Buka Dashboard Live</p>
+                <p className="text-lg font-semibold">Buka Demo Dashboard Live</p>
                 <p className="mt-1 text-sm text-slate-400">
                   Data pada situs ini adalah data contoh untuk demonstrasi.
                 </p>
-              </div>
+              </div> */}
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/dashboard"
                 className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-200"
               >
-                Lihat Dashboard
+                Lihat Demo Dashboard
               </Link>
               <Link
                 href="/about"
@@ -53,9 +53,9 @@ export default function Footer() {
           <div>
             <p className="text-sm font-semibold">Navigasi</p>
             <div className="mt-2 flex flex-col gap-1 text-sm text-slate-400">
-              <Link href="/" className="hover:text-white">Home</Link>
-              <Link href="/about" className="hover:text-white">About</Link>
-              <Link href="/dashboard" className="hover:text-white">Dashboard</Link>
+              <Link href="/" className="hover:text-white">Beranda</Link>
+              <Link href="/about" className="hover:text-white">Tentang Kami</Link>
+              <Link href="/dashboard" className="hover:text-white">Demo Dashboard</Link>
             </div>
           </div>
           <div>

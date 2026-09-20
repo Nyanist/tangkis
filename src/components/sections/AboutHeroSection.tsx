@@ -26,13 +26,13 @@ export default function AboutHeroSection() {
                 href="/dashboard"
                 className="rounded-full bg-white px-6 py-3 font-semibold text-slate-900 hover:bg-slate-200"
               >
-                Lihat Dashboard
+                Lihat Demo Dashboard
               </Link>
               <Link
                 href="/"
                 className="rounded-full border border-white/20 bg-white/10 px-6 py-3 font-semibold backdrop-blur-sm hover:bg-white/20"
               >
-                Kembali ke Home
+                Kembali ke Beranda
               </Link>
             </div>
           </FadeUp>
