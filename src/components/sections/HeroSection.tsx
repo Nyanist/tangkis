@@ -12,7 +12,7 @@ export default function HeroSection() {
 
   return (
     <section className="lg:p-3">
-      <div className="relative flex h-[100dvh] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 px-6 text-center text-white lg:items-start lg:justify-start lg:rounded-3xl lg:px-10 lg:text-left">
+      <div className="relative flex h-[100dvh] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 text-center text-[#f0f0f0] lg:items-start lg:justify-start lg:rounded-3xl lg:px-10 lg:text-left">
         <div className="w-full max-w-3xl px-4 md:px-0 lg:mt-[clamp(7rem,18vh,9.5rem)]">
           <FadeUp>
             <p className="inline-block rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
@@ -27,7 +27,7 @@ export default function HeroSection() {
             <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
               <Link
                 href="/dashboard"
-                className="rounded-full bg-white px-6 py-3 font-semibold text-slate-900 hover:bg-slate-200"
+                className="rounded-full bg-[#f0f0f0] px-6 py-3 font-semibold text-brand-950 hover:bg-brand-100"
               >
                 Lihat Demo Dashboard
               </Link>

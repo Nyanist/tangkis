@@ -1,5 +1,4 @@
 "use client";
-import { Fuel } from "lucide-react";
 import FadeUp from "@/components/motion/FadeUp";
 import SectionBadge from "@/components/sections/SectionBadge";
 import { background } from "@/lib/data/background";
@@ -7,7 +6,7 @@ import Image from "next/image";
 
 export default function BackgroundSection() {
   return (
-    <section id="latar-belakang" className="scroll-mt-24 bg-white py-16 lg:py-24">
+    <section id="latar-belakang" className="scroll-mt-24 bg-[#f0f0f0] py-8 lg:py-16">
       <div className="mx-auto grid max-w-[95%] items-center gap-12 px-4 md:px-6 lg:max-w-[92%] lg:grid-cols-2 lg:gap-24 xl:max-w-[1400px]">
         <FadeUp>
           <SectionBadge number="01" label="Latar Belakang" />
@@ -19,13 +18,15 @@ export default function BackgroundSection() {
           </div>
         </FadeUp>
         <FadeUp delay={0.15}>
-          <div className="relative min-h-[24rem] overflow-hidden rounded-lg shadow-2xl lg:h-[500px]">
+          <div className="relative min-h-[24rem] lg:h-[500px]">
+            {/* centered glow behind the image: no offset, spreads evenly on all sides */}
+            <div aria-hidden className="absolute inset-6 rounded-lg bg-gradient-to-r from-transparent to-black/45 blur-xl" />
             <Image
               src="/s1-pch-img.webp"
               alt=""
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
-              className="object-cover"
+              className="rounded-lg object-cover"
             />
           </div>
         </FadeUp>

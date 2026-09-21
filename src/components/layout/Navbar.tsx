@@ -32,15 +32,15 @@ export default function Navbar() {
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-all duration-500 lg:flex lg:justify-center",
           // Docked sits at pt-4 and eases down to pt-6 as it becomes an island.
-          scrolled ? "bg-transparent lg:px-6 lg:pt-6" : cn("lg:px-0 lg:pt-4", darkHero ? "bg-transparent" : "bg-slate-900")
+          scrolled ? "bg-transparent lg:px-6 lg:pt-6" : cn("lg:px-0 lg:pt-4", darkHero ? "bg-transparent" : "bg-brand-950")
         )}
       >
         <nav
           className={cn(
-            "flex h-16 w-full items-center justify-between border border-transparent px-4 text-white transition-all duration-500 lg:px-8",
+            "flex h-16 w-full items-center justify-between border border-transparent px-4 text-[#f0f0f0] transition-all duration-500 lg:px-8",
             // Docked: merges with the page top. Scrolled: collapses into a floating island.
             scrolled
-              ? "bg-slate-900/90 backdrop-blur-md lg:max-w-5xl lg:rounded-full lg:border-white/20 lg:px-6"
+              ? "bg-brand-950/90 backdrop-blur-md lg:max-w-5xl lg:rounded-full lg:border-white/20 lg:px-6"
               : "bg-transparent lg:max-w-[100rem] lg:rounded-none"
           )}
         >
@@ -53,8 +53,8 @@ export default function Navbar() {
                 key={l.href}
                 href={l.href}
                 className={cn(
-                  "text-sm font-medium text-white/70 hover:text-white",
-                  pathname === l.href && "text-white underline underline-offset-4"
+                  "text-sm font-medium text-white/70 hover:text-[#f0f0f0]",
+                  pathname === l.href && "text-[#f0f0f0] underline underline-offset-4"
                 )}
               >
                 {l.label}
@@ -63,13 +63,13 @@ export default function Navbar() {
           </div>
           <Link
             href="/dashboard"
-            className="hidden rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-200 md:block"
+            className="hidden rounded-full bg-[#f0f0f0] px-5 py-2 text-sm font-semibold text-brand-950 hover:bg-brand-100 md:block"
           >
             Lihat Demo Dashboard
           </Link>
           {/* ponytail: plain useState overlay instead of shadcn Sheet — Sheet if menu needs focus-trap */}
           <button
-            className="rounded p-2 text-white hover:bg-white/10 md:hidden"
+            className="rounded p-2 text-[#f0f0f0] hover:bg-white/10 md:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label="Toggle menu"
             aria-expanded={open}
@@ -79,15 +79,15 @@ export default function Navbar() {
         </nav>
       </header>
       {open && (
-        <div className="fixed inset-0 z-40 flex flex-col justify-center gap-2 bg-slate-900 px-8 pt-16 md:hidden">
+        <div className="fixed inset-0 z-40 flex flex-col justify-center gap-2 bg-brand-950 px-8 pt-16 md:hidden">
           {links.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
               className={cn(
-                "py-3 text-3xl font-bold text-white/70 hover:text-white",
-                pathname === l.href && "text-white"
+                "py-3 text-3xl font-bold text-white/70 hover:text-[#f0f0f0]",
+                pathname === l.href && "text-[#f0f0f0]"
               )}
             >
               {l.label}
