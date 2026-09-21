@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import SectionBadge from "@/components/sections/SectionBadge";
 import FadeUp from "@/components/motion/FadeUp";
 import ScrollHint from "@/components/motion/ScrollHint";
@@ -51,8 +51,9 @@ export default function ProblemSection() {
   const reduceMotion = useReducedMotion();
   const [desktop, setDesktop] = useState(false); // false on first render so SSR/hydration match
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  // Hint is visible when the section pins, and is gone by the time the first card starts entering.
-  const hintOpacity = useTransform(scrollYProgress, [0, CARD_START], [1, 0]);
+  const [hintWhite, setHintWhite] = useState(false);
+  // The hint is dark for the white page; flip it to white once card 3 is 50% in.
+  useMotionValueEvent(scrollYProgress, "change", (v) => setHintWhite(v >= CARD_START + 2 * CARD_STEP + CARD_SPAN / 2));
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -99,7 +100,9 @@ export default function ProblemSection() {
             )
           )}
         </div>
-        {pinned && <ScrollHint dark opacity={hintOpacity} className="absolute bottom-4 left-1/2 -translate-x-1/2" />}
+        {pinned && (
+          <ScrollHint dark={!hintWhite} className="absolute bottom-8 right-8 md:right-10" />
+        )}
       </div>
     </section>
   );

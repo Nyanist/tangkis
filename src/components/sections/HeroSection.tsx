@@ -9,7 +9,7 @@ import { product } from "@/lib/data/product";
 export default function HeroSection() {
   // Scroll hint fades out as soon as the user starts scrolling.
   const { scrollY } = useScroll();
-  const hintOpacity = useTransform(scrollY, [0, 80], [1, 0]);
+  const hintOpacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   return (
     <section className="lg:p-3">
@@ -42,7 +42,7 @@ export default function HeroSection() {
             </div>
           </FadeUp>
         </div>
-        <ScrollHint opacity={hintOpacity} className="absolute bottom-8 left-1/2 -translate-x-1/2" />
+        <ScrollHint opacity={hintOpacity} className="absolute bottom-8 inset-x-0 mx-auto w-fit" />
       </div>
     </section>
   );
