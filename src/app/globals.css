@@ -28,6 +28,14 @@ html {
 }
 .animate-scroll-hint { animation: scroll-hint 1.6s ease-in-out infinite; }
 
+/* Light pulse running along a circuit trace (pathLength=100): fades in, travels end to end, fades out. */
+@keyframes circuit-pulse {
+  0% { stroke-dashoffset: 7; opacity: 0; }
+  15%, 85% { opacity: 1; }
+  100% { stroke-dashoffset: -100; opacity: 0; }
+}
+.animate-circuit-pulse { animation: circuit-pulse 5s ease-in-out infinite; opacity: 0; }
+
 .accordion-content {
   display: grid;
   grid-template-rows: 0fr;
@@ -37,7 +45,7 @@ html {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .animate-marquee, .animate-scroll-hint { animation: none; }
+  .animate-marquee, .animate-scroll-hint, .animate-circuit-pulse { animation: none; }
 }
 
 /* ponytail: notch/home-indicator padding only on devices that need it */

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useScroll, useTransform } from "framer-motion";
 import ScrollHint from "@/components/motion/ScrollHint";
+import CircuitAccent from "@/components/motion/CircuitAccent";
 import FadeUp from "@/components/motion/FadeUp";
 import { product } from "@/lib/data/product";
 
@@ -13,7 +14,8 @@ export default function HeroSection() {
   return (
     <section className="lg:p-3">
       <div className="relative flex h-[100dvh] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 text-center text-[#f0f0f0] lg:items-start lg:justify-start lg:rounded-3xl lg:px-10 lg:text-left">
-        <div className="w-full max-w-3xl px-4 md:px-0 lg:mt-[clamp(7rem,18vh,9.5rem)]">
+        <CircuitAccent />
+        <div className="relative w-full max-w-3xl px-4 md:px-0 lg:mt-[clamp(7rem,18vh,9.5rem)]">
           <FadeUp>
             <p className="inline-block rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
               {product.name}
