@@ -1,77 +1,38 @@
 "use client";
-import { motion } from "framer-motion";
+import { Fuel, CheckCircle, AlertTriangle, OctagonAlert } from "lucide-react";
 import { TANGKI } from "@/lib/data/dashboard";
+import { cn, computeStatusCounts } from "@/lib/utils";
 
 export default function SummaryCards() {
   const total = TANGKI.length;
-  const hijau = TANGKI.filter((t) => t.status === "HIJAU").length;
-  const kuning = TANGKI.filter((t) => t.status === "KUNING").length;
-  const merah = TANGKI.filter((t) => t.status === "MERAH").length;
+  const { hijau, kuning, merah } = computeStatusCounts(TANGKI);
   const lokasi = new Set(TANGKI.map((t) => t.lokasi.split(" — ")[0])).size;
 
-  const cards = [
-    {
-      label: "Total tangki dipantau",
-      value: total,
-      micro: `di ${lokasi} lokasi`,
-      seg: TANGKI.map((t) => t.status.toLowerCase()),
-      cls: "border-[#D9E1E8]",
-      valCls: "text-[#172B3A]",
-    },
-    {
-      label: "Status hijau",
-      value: hijau,
-      micro: `${Math.round((hijau / total) * 100)}% dari total`,
-      seg: TANGKI.map((_, k) => (k < hijau ? "hijau" : null)),
-      cls: "border-[#D9E1E8]",
-      valCls: "text-[#172B3A]",
-    },
-    {
-      label: "Status kuning",
-      value: kuning,
-      micro: "Perlu perhatian",
-      seg: TANGKI.map((_, k) => (k < kuning ? "kuning" : null)),
-      cls: "border-[#D9E1E8]",
-      valCls: "text-[#172B3A]",
-    },
-    {
-      label: "Status merah",
-      value: merah,
-      micro: "Tindakan segera",
-      seg: TANGKI.map((_, k) => (k < merah ? "merah" : null)),
-      cls: "border-l-4 !border-l-[#D64545] bg-[#D64545]/[.06]",
-      valCls: "text-[#B83232]",
-    },
+  const segmen = [
+    { label: "Total Tangki", value: total, micro: `di ${lokasi} lokasi`, icon: Fuel, cls: "text-brand-950", iconCls: "bg-brand-100/60 text-brand-700" },
+    { label: "Hijau", value: hijau, micro: `${Math.round((hijau / total) * 100)}% dari total`, icon: CheckCircle, cls: "text-[#1F6B42]", iconCls: "bg-[#6aa84f]/15 text-[#1F6B42]" },
+    { label: "Kuning", value: kuning, micro: "Perlu perhatian", icon: AlertTriangle, cls: "text-[#8A5A00]", iconCls: "bg-[#E9A21B]/15 text-[#8A5A00]" },
+    { label: "Merah", value: merah, micro: "Tindakan segera", icon: OctagonAlert, cls: "text-[#B83232]", iconCls: "bg-[#D64545]/15 text-[#B83232]" },
   ];
 
   return (
-    <section aria-label="Ringkasan status tangki" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      {cards.map((c, i) => (
-        <motion.div
-          key={c.label}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.06 + i * 0.07, duration: 0.45 }}
-          className={`rounded-lg border bg-white p-4 ${c.cls}`}
-        >
-          <p className="truncate text-[11px] font-bold uppercase tracking-wider text-[#5A6B7B]">{c.label}</p>
-          <div className="mt-2 flex items-end justify-between gap-2">
-            <span className={`text-3xl font-bold leading-none tabular-nums md:text-4xl ${c.valCls}`}>
-              {String(c.value).padStart(2, "0")}
-            </span>
+    <section
+      aria-label="Ringkasan status tangki"
+      className="grid grid-cols-2 divide-x divide-y divide-brand-100 rounded-lg border border-brand-100 bg-white sm:grid-cols-4 sm:divide-y-0"
+    >
+      {segmen.map((s) => (
+        <div key={s.label} className={cn("flex items-center gap-3 px-4 py-3", s.label === "Merah" && "border-l-4 border-l-[#D64545]")}>
+          <span className={cn("grid h-8 w-8 flex-none place-items-center rounded-md", s.iconCls)}>
+            <s.icon className="h-4 w-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#5A6B7B]">{s.label}</span>
+              <span className={`text-xl font-bold tabular-nums ${s.cls}`}>{String(s.value).padStart(2, "0")}</span>
+            </div>
+            <p className="truncate text-xs text-[#5A6B7B]">{s.micro}</p>
           </div>
-          <div className="mt-2 flex items-center justify-between gap-2">
-            <span className="flex gap-1" aria-hidden="true">
-              {c.seg.map((s, k) => (
-                <span
-                  key={k}
-                  className={`h-1.5 w-4 rounded-sm ${s === "hijau" ? "bg-[#2E8B57]" : s === "kuning" ? "bg-[#E9A21B]" : s === "merah" ? "bg-[#D64545]" : "bg-[#172B3A]/10"}`}
-                />
-              ))}
-            </span>
-            <span className="text-xs text-[#5A6B7B]">{c.micro}</span>
-          </div>
-        </motion.div>
+        </div>
       ))}
     </section>
   );
