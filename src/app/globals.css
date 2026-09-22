@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F0f0f0;
+  --foreground: #172b3a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 20s linear infinite; }
+
+@keyframes scroll-hint {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(0.7rem); }
+}
+.animate-scroll-hint { animation: scroll-hint 1.8s ease-in-out infinite; }
+
+/* Light pulse running along a circuit trace (pathLength=100): fades in, travels end to end, fades out. */
+@keyframes circuit-pulse {
+  0% { stroke-dashoffset: 7; opacity: 0; }
+  15%, 85% { opacity: 1; }
+  100% { stroke-dashoffset: -100; opacity: 0; }
+}
+.animate-circuit-pulse { animation: circuit-pulse 5s ease-in-out infinite; opacity: 0; }
+
+.accordion-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s ease;
+}
+.accordion-content[data-open="true"] { grid-template-rows: 1fr; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-marquee, .animate-scroll-hint, .animate-circuit-pulse { animation: none; }
+}
+
+/* ponytail: notch/home-indicator padding only on devices that need it */
+@supports (padding: env(safe-area-inset-bottom)) {
+  footer { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* ponytail: LED dots only — full demodashboard.css if pixel-parity needed */
+.led {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.led--ok { color: #2e8b57; }
+.led--warn { color: #e9a21b; }
+.led--info { color: #2f6fed; }
+.led--putih { color: #fff; }
+.led--pulse::after {
+  content: "";
+  position: absolute;
+  inset: -0.22rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  animation: denyut 2.4s ease-out infinite;
+}
+@keyframes denyut {
+  0% { opacity: 0.6; transform: scale(0.55); }
+  70%, 100% { opacity: 0; transform: scale(1.7); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .led--pulse::after { animation: none; opacity: 0.3; }
+}
