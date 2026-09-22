@@ -2,11 +2,12 @@
 import FadeUp from "@/components/motion/FadeUp";
 import SectionBadge from "@/components/sections/SectionBadge";
 import { team } from "@/lib/data/team";
+import { KONTEN_SECTION } from "@/lib/utils";
 
 export default function TeamSection() {
   return (
     <section className="bg-[#f0f0f0] py-16 lg:py-24">
-      <div className="mx-auto max-w-[95%] px-4 md:px-6 lg:max-w-[92%] xl:max-w-[1400px]">
+      <div className={KONTEN_SECTION}>
         <FadeUp>
           <SectionBadge number="01" label="Tim" />
           <h2 className="mt-6 max-w-3xl text-3xl font-bold md:text-5xl">Meet the Team</h2>
