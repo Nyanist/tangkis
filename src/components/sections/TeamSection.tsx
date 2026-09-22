@@ -9,7 +9,7 @@ export default function TeamSection() {
     <section className="bg-[#f0f0f0] py-16 lg:py-24">
       <div className={KONTEN_SECTION}>
         <FadeUp>
-          <SectionBadge number="01" label="Tim" />
+          <SectionBadge number="02" label="Tim" />
           <h2 className="mt-6 max-w-3xl text-3xl font-bold md:text-5xl">Meet the Team</h2>
         </FadeUp>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
