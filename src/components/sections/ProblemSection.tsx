@@ -5,14 +5,14 @@ import SectionBadge from "@/components/sections/SectionBadge";
 import FadeUp from "@/components/motion/FadeUp";
 import ScrollHint from "@/components/motion/ScrollHint";
 import { problems } from "@/lib/data/problems";
-import { cn } from "@/lib/utils";
+import { cn, KONTEN_SECTION } from "@/lib/utils";
 
 type Problem = (typeof problems)[number];
 
 function ProblemCard({ p }: { p: Problem }) {
   return (
     <div
-      className="relative flex min-h-[24rem] flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-6 pb-8 text-[#f0f0f0] lg:h-[min(500px,50vh)]"
+      className="relative flex min-h-[24rem] flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-6 pb-8 text-[#f0f0f0] lg:min-h-[min(500px,50vh)]"
       style={{ backgroundImage: `url(${p.image})` }}
     >
       <p.icon className="relative h-14 w-14" strokeWidth={1.5} aria-hidden />
@@ -75,7 +75,7 @@ export default function ProblemSection() {
     >
       <div
         className={cn(
-          "mx-auto max-w-[95%] px-4 md:px-6 lg:max-w-[92%] xl:max-w-[1400px]",
+          KONTEN_SECTION,
           pinned && "sticky top-0 flex h-screen flex-col justify-center pb-16 pt-24"
         )}
       >

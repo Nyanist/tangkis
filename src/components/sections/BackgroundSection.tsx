@@ -3,11 +3,12 @@ import FadeUp from "@/components/motion/FadeUp";
 import SectionBadge from "@/components/sections/SectionBadge";
 import { background } from "@/lib/data/background";
 import Image from "next/image";
+import { cn, KONTEN_SECTION } from "@/lib/utils";
 
 export default function BackgroundSection() {
   return (
     <section id="latar-belakang" className="scroll-mt-24 bg-[#f0f0f0] py-8 lg:py-16">
-      <div className="mx-auto grid max-w-[95%] items-center gap-12 px-4 md:px-6 lg:max-w-[92%] lg:grid-cols-2 lg:gap-24 xl:max-w-[1400px]">
+      <div className={cn(KONTEN_SECTION, "grid items-center gap-12 lg:grid-cols-2 lg:gap-24")}>
         <FadeUp>
           <SectionBadge number="01" label="Latar Belakang" />
           <h2 className="mt-6 text-3xl font-bold md:text-5xl">{background.title}</h2>
