@@ -33,7 +33,7 @@ export default function CircuitAccent() {
     <svg
       viewBox="0 0 1000 560"
       preserveAspectRatio="xMaxYMid slice"
-      className="pointer-events-none absolute inset-0 h-full w-full opacity-70 max-md:opacity-40"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full opacity-70 max-md:opacity-40"
       aria-hidden
     >
       <defs>
