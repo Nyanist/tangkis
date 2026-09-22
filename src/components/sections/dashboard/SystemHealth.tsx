@@ -8,33 +8,35 @@ const gayaStatus: Record<string, string> = {
   CEK: "text-[#8A5A00]",
 };
 
+// Sticky status bar, not a card — stops before whatever follows it in the page
+// (the demo-disclaimer strip on /dashboard-2, the site Footer on /dashboard)
+// since CSS sticky naturally un-sticks once that next content needs to show.
 export default function SystemHealth() {
   return (
-    <section aria-labelledby="judul-sistem" className="rounded-lg border border-brand-100 bg-white p-4 md:p-5">
-      <h2 id="judul-sistem" className="mb-2 font-semibold text-brand-950">Kesehatan Sistem</h2>
-      <ul>
-        {STATUS_SISTEM.map((s) => {
-          const Ikon = IKON_KESEHATAN[s.ikon] ?? IKON_KESEHATAN.pantau;
-          return (
-            <li key={s.nama} className="flex items-center gap-3 border-t border-brand-100 py-2.5 first:border-t-0 first:pt-0 last:pb-0">
-              <span className="grid h-7 w-7 flex-none place-items-center rounded-md bg-brand-100/60 text-brand-700">
-                <Ikon className="h-4 w-4" />
-              </span>
-              <span className="min-w-0 flex-1 text-sm">{s.nama}</span>
-              <span className={cn("inline-flex items-center gap-1.5 text-xs font-bold tracking-wider", gayaStatus[s.status])}>
-                {s.status === "AKTIF" ? (
-                  <span className="led led--ok led--pulse" aria-hidden="true" />
-                ) : s.status === "CEK" ? (
-                  <span className="led led--warn" aria-hidden="true" />
-                ) : (
-                  <span className="h-2 w-2 rounded-full bg-[#D64545]" aria-hidden="true" />
-                )}
-                {s.status}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+    <section
+      aria-labelledby="judul-sistem"
+      className="sticky bottom-0 z-20 flex flex-wrap items-center gap-x-6 gap-y-1.5 border-t border-brand-100 bg-white px-4 py-2.5 shadow-[0_-2px_8px_rgba(0,0,0,0.04)]"
+    >
+      <h2 id="judul-sistem" className="flex-none text-sm font-semibold text-brand-950">Kesehatan Sistem</h2>
+      {STATUS_SISTEM.map((s) => {
+        const Ikon = IKON_KESEHATAN[s.ikon] ?? IKON_KESEHATAN.pantau;
+        return (
+          <span key={s.nama} className="flex items-center gap-1.5 text-xs">
+            <Ikon className="h-3.5 w-3.5 text-brand-700" />
+            <span className="text-[#5A6B7B]">{s.nama}</span>
+            <span className={cn("inline-flex items-center gap-1 font-bold tracking-wider", gayaStatus[s.status])}>
+              {s.status === "AKTIF" ? (
+                <span className="led led--ok led--pulse" aria-hidden="true" />
+              ) : s.status === "CEK" ? (
+                <span className="led led--warn" aria-hidden="true" />
+              ) : (
+                <span className="h-2 w-2 rounded-full bg-[#D64545]" aria-hidden="true" />
+              )}
+              {s.status}
+            </span>
+          </span>
+        );
+      })}
     </section>
   );
 }
