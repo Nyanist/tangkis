@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { product } from "@/lib/data/product";
@@ -44,8 +45,8 @@ export default function Navbar() {
               : "bg-transparent lg:max-w-[100rem] lg:rounded-none"
           )}
         >
-          <Link href="/" className="text-lg font-extrabold tracking-widest">
-            {product.name}
+          <Link href="/" className="flex items-center">
+            <Image src="/logo-txt-hijau.webp" alt={product.name} width={180} height={40} className="h-10 w-auto" priority />
           </Link>
           <div className="hidden gap-8 md:flex">
             {links.map((l) => (

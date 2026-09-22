@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { AMBANG, TREN } from "@/lib/data/dashboard";
+import { AMBANG, type TrenTangki } from "@/lib/data/dashboard";
 
 // ponytail: Fritsch-Carlson monotone spline inline — recharts if multi-series/interactions grow
 function tangents(xs: number[], ys: number[]) {
@@ -18,18 +18,18 @@ function tangents(xs: number[], ys: number[]) {
   return m;
 }
 
-export default function TrendChart() {
-  const [active, setActive] = useState(TREN.ppm.length - 1);
+export default function TrendChart({ tren, judul }: { tren: TrenTangki; judul: string }) {
+  const [active, setActive] = useState(tren.ppm.length - 1);
   const W = 640, H = 300, mg = { t: 24, r: 14, b: 30, l: 48 };
   const iw = W - mg.l - mg.r, ih = H - mg.t - mg.b;
-  const { min, max, langkah } = TREN.sumbuY;
-  const n = TREN.ppm.length;
+  const { min, max, langkah } = tren.sumbuY;
+  const n = tren.ppm.length;
 
   const g = useMemo(() => {
     const px = (i: number) => mg.l + (iw / n) * (i + 0.5);
     const py = (v: number) => mg.t + ih * (1 - (Math.min(max, Math.max(min, v)) - min) / (max - min));
-    const xs = TREN.ppm.map((_, i) => px(i));
-    const ys = TREN.ppm.map(py);
+    const xs = tren.ppm.map((_, i) => px(i));
+    const ys = tren.ppm.map(py);
     const m = tangents(xs, ys);
     let d = `M${xs[0]} ${ys[0].toFixed(1)}`;
     for (let k = 0; k < n - 1; k++) {
@@ -38,39 +38,39 @@ export default function TrendChart() {
     }
     return { px, py, xs, ys, d, yBatas: py(AMBANG.batas), yKuning: py(AMBANG.kuningMulai), bottom: mg.t + ih };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [tren]);
 
   const ticks: number[] = [];
   for (let v = min; v <= max; v += langkah) ticks.push(v);
-  const over = TREN.ppm[active] > AMBANG.batas;
+  const over = tren.ppm[active] > AMBANG.batas;
 
   return (
-    <section aria-labelledby="judul-tren" className="rounded-lg border border-[#D9E1E8] bg-white p-4 md:p-5">
+    <section aria-labelledby="judul-tren" className="rounded-lg border border-brand-100 bg-white p-4 md:p-5">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <h2 id="judul-tren" className="font-semibold text-[#0B2239]">{TREN.judul}</h2>
+        <h2 id="judul-tren" className="font-semibold text-brand-950">{judul}</h2>
         <ul className="flex flex-wrap gap-4 text-xs text-[#5A6B7B]" aria-hidden="true">
-          <li className="flex items-center gap-1.5"><span className="h-1 w-5 rounded bg-[#123B66]" />Kadar air</li>
+          <li className="flex items-center gap-1.5"><span className="h-1 w-5 rounded bg-brand-700" />Kadar air</li>
           <li className="flex items-center gap-1.5"><span className="w-5 border-t-2 border-dashed border-[#D64545]" />Batas {AMBANG.batas} ppm</li>
         </ul>
       </div>
       <div className="relative">
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className="block h-64 w-full md:h-80"
+          className="block h-64 w-full rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 md:h-80"
           role="img"
           tabIndex={0}
-          aria-label={`${TREN.judul}. Nilai terakhir ${TREN.ppm[n - 1]} ppm, batas ${AMBANG.batas} ppm.`}
+          aria-label={`${judul}. Nilai terakhir ${tren.ppm[n - 1]} ppm, batas ${AMBANG.batas} ppm.`}
           onKeyDown={(e) => {
             if (e.key === "ArrowRight") setActive((a) => Math.min(n - 1, a + 1));
             if (e.key === "ArrowLeft") setActive((a) => Math.max(0, a - 1));
-            if (e.key === "Beranda") setActive(0);
+            if (e.key === "Home") setActive(0);
             if (e.key === "End") setActive(n - 1);
           }}
         >
           <defs>
-            <linearGradient id="grad-navy" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" stopColor="#123B66" stopOpacity="0.12" />
-              <stop offset="1" stopColor="#123B66" stopOpacity="0" />
+            <linearGradient id="grad-brand" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stopColor="#38761d" stopOpacity="0.12" />
+              <stop offset="1" stopColor="#38761d" stopOpacity="0" />
             </linearGradient>
             <linearGradient id="grad-red" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0" stopColor="#D64545" stopOpacity="0.2" />
@@ -96,34 +96,47 @@ export default function TrendChart() {
             Batas spesifikasi {AMBANG.batas} ppm
           </text>
 
-          <path d={`${g.d} L${g.xs[n - 1]} ${g.bottom} L${g.xs[0]} ${g.bottom} Z`} fill="url(#grad-navy)" clipPath="url(#klip-bawah)" />
+          <path d={`${g.d} L${g.xs[n - 1]} ${g.bottom} L${g.xs[0]} ${g.bottom} Z`} fill="url(#grad-brand)" clipPath="url(#klip-bawah)" />
           <path d={`${g.d} L${g.xs[n - 1]} ${mg.t} L${g.xs[0]} ${mg.t} Z`} fill="url(#grad-red)" clipPath="url(#klip-atas)" />
-          <path d={g.d} fill="none" stroke="#123B66" strokeWidth="2.6" strokeLinecap="round" clipPath="url(#klip-bawah)" />
+          <path d={g.d} fill="none" stroke="#38761d" strokeWidth="2.6" strokeLinecap="round" clipPath="url(#klip-bawah)" />
           <path d={g.d} fill="none" stroke="#D64545" strokeWidth="2.6" strokeLinecap="round" clipPath="url(#klip-atas)" />
 
-          {TREN.ppm.map((v, i) => (
+          {tren.ppm.map((v, i) => (
             <g key={i}>
-              <circle cx={g.xs[i]} cy={g.ys[i]} r={i === active ? 6 : 4} fill={v > AMBANG.batas ? "#D64545" : "#123B66"} stroke="#fff" strokeWidth="2" />
-              {i === active && <circle cx={g.xs[i]} cy={g.ys[i]} r="11" fill="none" stroke={over ? "#D64545" : "#123B66"} strokeWidth="2" opacity="0.35" />}
-              <text x={g.xs[i]} y={g.ys[i] - 12} textAnchor="middle" fontSize="12" fontWeight="600" fill={v > AMBANG.batas ? "#B83232" : "#172B3A"}>{v}</text>
-              <text x={g.xs[i]} y={H - 8} textAnchor="middle" fontSize="12" fill="#5A6B7B">{TREN.bulan[i]}</text>
+              <circle cx={g.xs[i]} cy={g.ys[i]} r={i === active ? 6 : 4} fill={v > AMBANG.batas ? "#D64545" : "#38761d"} stroke="#fff" strokeWidth="2" />
+              {i === active && <circle cx={g.xs[i]} cy={g.ys[i]} r="11" fill="none" stroke={over ? "#D64545" : "#38761d"} strokeWidth="2" opacity="0.35" />}
+              {i === active && (
+                <text x={g.xs[i]} y={g.ys[i] - 16} textAnchor="middle" fontSize="12" fontWeight="600" fill={v > AMBANG.batas ? "#B83232" : "#172B3A"}>{v}</text>
+              )}
+              <text x={g.xs[i]} y={H - 8} textAnchor="middle" fontSize="12" fill="#5A6B7B">{tren.bulan[i]}</text>
+              {/* ponytail: no SVG <title> tooltip here — React's document-metadata hoisting
+                  mishandles multi-child <title> elements during SSR (empty on server, filled
+                  on client → hydration mismatch when this chart renders outside a popup).
+                  The active-point tooltip div below already covers this info more richly. */}
               <rect
                 x={g.xs[i] - iw / n / 2} y={mg.t} width={iw / n} height={ih}
                 fill="transparent" style={{ cursor: "crosshair" }}
+                aria-label={`${tren.bulan[i]}: ${v} ppm`}
                 onPointerEnter={() => setActive(i)}
                 onPointerDown={() => setActive(i)}
-              >
-                <title>{TREN.bulan[i]}: {v} ppm</title>
-              </rect>
+              />
             </g>
           ))}
 
           <line x1={g.xs[active]} x2={g.xs[active]} y1={mg.t} y2={g.bottom} stroke="#6B7C8C" strokeWidth="1" strokeDasharray="3 3" />
         </svg>
-        <div className="pointer-events-none absolute rounded-md bg-[#0B2239] px-3 py-2 text-xs text-white shadow-lg" style={{ left: `${Math.max(8, Math.min(92, (g.xs[active] / W) * 100))}%`, top: 0, transform: "translate(-50%, -10%)" }} role="status">
-          <span className="opacity-70">{TREN.bulan[active]}</span>
-          <span className="block text-base font-bold tabular-nums">{TREN.ppm[active]} ppm</span>
-          <span>{over ? `+${Math.round(((TREN.ppm[active] - AMBANG.batas) / AMBANG.batas) * 100)}% di atas batas` : `${AMBANG.batas - TREN.ppm[active]} ppm di bawah batas`}</span>
+        <div
+          className="pointer-events-none absolute rounded-md bg-brand-950 px-3 py-2 text-xs text-white shadow-lg"
+          style={{
+            left: `${Math.max(8, Math.min(92, (g.xs[active] / W) * 100))}%`,
+            top: `${Math.max(4, (g.ys[active] / H) * 100)}%`,
+            transform: "translate(-50%, calc(-100% - 12px))",
+          }}
+          role="status"
+        >
+          <span className="opacity-70">{tren.bulan[active]}</span>
+          <span className="block text-base font-bold tabular-nums">{tren.ppm[active]} ppm</span>
+          <span>{over ? `+${Math.round(((tren.ppm[active] - AMBANG.batas) / AMBANG.batas) * 100)}% di atas batas` : `${AMBANG.batas - tren.ppm[active]} ppm di bawah batas`}</span>
         </div>
       </div>
     </section>
