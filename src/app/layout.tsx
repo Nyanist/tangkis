@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
   title: { default: "TANGKIS", template: "%s | TANGKIS" },
   description: "TANGKIS — Pemantauan Kesiapan Bahan Bakar Genset Cadangan.",
+  icons: { icon: "/logo-full-hijau.webp" },
   openGraph: { type: "website", locale: "id_ID" },
 };
 
