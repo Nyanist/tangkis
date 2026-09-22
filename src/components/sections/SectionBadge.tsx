@@ -10,7 +10,7 @@ interface SectionBadgeProps {
 export default function SectionBadge({ number, label, dark, className }: SectionBadgeProps) {
   return (
     <div className={cn("flex items-center", className)}>
-      <span className="z-10 flex h-9 w-9 items-center justify-center rounded-full bg-brand-700 text-sm font-bold text-[#f0f0f0]">
+      <span className="z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-bold text-[#f0f0f0]">
         {number}
       </span>
       <span

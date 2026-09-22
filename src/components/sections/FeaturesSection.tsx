@@ -6,15 +6,18 @@ import SectionBadge from "@/components/sections/SectionBadge";
 import FadeUp from "@/components/motion/FadeUp";
 import { features } from "@/lib/data/features";
 import { product } from "@/lib/data/product";
+import { cn, KONTEN_SECTION } from "@/lib/utils";
 
 export default function FeaturesSection() {
   const [active, setActive] = useState<number | null>(features[0].id); // null = all collapsed
 
   return (
     <section className="bg-slate-50 py-16 lg:py-24">
-      <div className="mx-auto grid max-w-[95%] grid-cols-1 gap-12 px-4 md:px-6 lg:max-w-[92%] lg:grid-cols-12 lg:gap-24 xl:max-w-[1400px]">
-        <div className="lg:col-span-5">
-          <div className="flex aspect-[4/3] flex-col justify-between rounded-[32px] bg-gradient-to-br from-brand-950 to-brand-800 p-8 text-[#f0f0f0] lg:sticky lg:top-32">
+      {/* grid-cols-12 + gap-24 meant 11 gaps × 96px = 1056px of gap, more than the
+          content box at ~1100px — every track collapsed and this column overflowed. */}
+      <div className={cn(KONTEN_SECTION, "grid grid-cols-1 gap-12 lg:grid-cols-[5fr_7fr] lg:gap-12")}>
+        <div className="min-w-0">
+          <div className="flex flex-col gap-10 rounded-[32px] bg-gradient-to-br from-brand-950 to-brand-800 p-8 text-[#f0f0f0] lg:sticky lg:top-32">
             <Fuel className="h-14 w-14" strokeWidth={1.5} aria-hidden />
             <div>
               <h2 className="text-3xl font-bold">{product.name}</h2>
@@ -29,7 +32,7 @@ export default function FeaturesSection() {
             </div>
           </div>
         </div>
-        <div className="lg:col-span-7">
+        <div className="min-w-0">
           <FadeUp>
             <SectionBadge number="03" label="Fitur" />
             <h2 className="mb-8 mt-6 text-3xl font-bold md:text-5xl">Fitur Utama</h2>

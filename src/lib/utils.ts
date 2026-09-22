@@ -6,6 +6,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// The gutter/max-width every marketing section shares, so their left edges line
+// up down the page. Was copy-pasted across Background/Features/Problem sections.
+export const KONTEN_SECTION =
+  "mx-auto min-mx-[4%] w-full max-w-[95%] px-4 md:px-6 lg:max-w-[92%] xl:max-w-[1400px]";
+
 export function computeStatusCounts(tanks: { status: string }[]) {
   return {
     hijau: tanks.filter((t) => t.status === "HIJAU").length,
