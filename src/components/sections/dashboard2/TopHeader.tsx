@@ -8,7 +8,7 @@ export default function TopHeader() {
   return (
     <header className="mb-4 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-extrabold tracking-wide text-brand-950">TANGKIS v2.0</h1>
+        <h1 className="text-2xl font-extrabold tracking-wide text-brand-950">TANGKIS</h1>
         <p className="text-sm text-[#5A6B7B]">Pemantauan Kesiapan Bahan Bakar Genset Cadangan</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <select className="rounded-md border border-brand-100 bg-white px-3 py-1.5 text-sm" defaultValue={PROVINSI_OPTIONS[0]}>

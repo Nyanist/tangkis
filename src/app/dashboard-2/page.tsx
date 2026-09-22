@@ -1,6 +1,7 @@
 import DashboardTopbar from "@/components/sections/dashboard/DashboardTopbar";
 import SummaryCards from "@/components/sections/dashboard/SummaryCards";
 import LokasiSection from "@/components/sections/dashboard/LokasiSection";
+import SystemHealth from "@/components/sections/dashboard/SystemHealth";
 
 // Hidden layout-comparison page (the previous /dashboard design) — not linked
 // from the navbar.
@@ -20,6 +21,7 @@ export default function Dashboard2Page() {
         <SummaryCards />
       </div>
       <LokasiSection />
+      <SystemHealth />
       <footer className="mt-4 border-t border-brand-100 pt-3 text-xs text-[#5A6B7B]">
         TANGKIS — prototipe antarmuka. Angka pada halaman ini adalah data contoh untuk keperluan demonstrasi.
       </footer>

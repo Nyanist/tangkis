@@ -16,14 +16,12 @@ export default function KpiRow() {
   return (
     <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
       {kartu.map((k) => (
-        <div key={k.label} className={`flex items-center gap-3 rounded-lg border bg-white p-4 ${k.cardCls}`}>
-          <span className={`grid h-11 w-11 flex-none place-items-center rounded-lg ${k.iconCls}`}>
-            <k.icon className="h-5 w-5" />
+        <div key={k.label} className={`flex items-center gap-2 rounded-lg border bg-white px-4 py-3 ${k.cardCls}`}>
+          <span className={`grid h-8 w-8 flex-none place-items-center rounded-lg ${k.iconCls}`}>
+            <k.icon className="h-4 w-4" />
           </span>
-          <div>
-            <p className="text-xs font-semibold text-[#5A6B7B]">{k.label}</p>
-            <p className="text-2xl font-bold tabular-nums text-[#172B3A]">{k.value}</p>
-          </div>
+          <p className="truncate text-xs font-semibold text-[#5A6B7B]">{k.label}</p>
+          <p className="ml-auto flex-none text-lg font-bold tabular-nums text-[#172B3A]">{k.value}</p>
         </div>
       ))}
     </div>
