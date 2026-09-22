@@ -13,6 +13,9 @@ const links = [
   { href: "/dashboard", label: "Demo Dashboard" },
 ];
 
+// Flip to false and save to hide the navbar on /dashboard* pages. Code-only switch, no UI control.
+const SHOW_ON_DASHBOARD = true;
+
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -26,6 +29,8 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  if (!SHOW_ON_DASHBOARD && pathname.startsWith("/dashboard")) return null;
 
   return (
     <>

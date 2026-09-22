@@ -31,25 +31,34 @@ export const SITE_OPTIONS = Array.from(
   new Set(Object.values(DETAIL_PER_TANGKI).map((d) => facilityOf(d.siteLabel)))
 );
 
+// Display kode/siteLabel for a tank, falling back to its raw dashboard.ts values
+// when no DETAIL_PER_TANGKI override exists. Single source so every /dashboard
+// component (Daftar Tangki, Bottleneck Site, Active Alert) shows the same naming.
+export function displayInfo(t: Tangki) {
+  const d = DETAIL_PER_TANGKI[t.kode];
+  return { kode: d?.kode ?? t.kode, siteLabel: d?.siteLabel ?? t.lokasi };
+}
+
 // Shared by Daftar Tangki and Active Alert so they always agree on which
 // tanks are "currently shown" for a given site filter (empty site = all).
 export function tangkiForSite(site: string): Tangki[] {
   return site ? TANGKI.filter((t) => facilityOf(DETAIL_PER_TANGKI[t.kode]?.siteLabel ?? "") === site) : TANGKI;
 }
 
-// ponytail: "day tank" isn't a separate category in our data model — reusing 3 of
-// the 5 TANGKI rows with a day-tank-style label, rather than inventing a parallel
-// tank type just for this one reference card.
-export interface DayTank {
-  tangki: Tangki;
-  label: string;
+export interface ProfilLokasi2 {
+  alamat: string;
+  pic: string;
+  telepon: string;
 }
 
-export const DAY_TANK_LIST: DayTank[] = [
-  { tangki: TANGKI[0], label: "RSH-DAY-01 (RS Harapan Kita — Genset 1)" },
-  { tangki: TANGKI[2], label: "TWR-DAY-C2 (Menara Navis — Genset 3)" },
-  { tangki: TANGKI[4], label: "DC1-DAY-EDG2 (Data Center — Genset Darurat 2)" },
-];
+// Keyed by SITE_OPTIONS facility names, reusing dashboard.ts's PROFIL_LOKASI
+// values from the site each facility replaced (RS Medika Center was "Rumah
+// Sakit A", etc. — see DETAIL_PER_TANGKI above) rather than inventing new PIC/phone data.
+export const PROFIL_LOKASI2: Record<string, ProfilLokasi2> = {
+  "RS Medika Center": { alamat: "Jl. Kesehatan No. 12, Jakarta Selatan", pic: "Budi Santoso", telepon: "021-5550101" },
+  "Sudirman Office Tower": { alamat: "Jl. Sudirman Kav. 45, Jakarta Pusat", pic: "Siti Rahayu", telepon: "021-5550202" },
+  "Cikarang Data Center": { alamat: "Jl. Gatot Subroto No. 8, Jakarta Selatan", pic: "Andi Wijaya", telepon: "021-5550303" },
+};
 
 // Decorative only — no filtering logic wired, matches the reference's two
 // top-bar dropdowns. ponytail: static options, not a real org/site hierarchy.

@@ -5,7 +5,7 @@ import { SITE_OPTIONS } from "@/lib/data/dashboard2";
 import TankDetailPopup from "@/components/sections/dashboard/TankDetailPopup";
 import SystemHealth from "@/components/sections/dashboard/SystemHealth";
 import BottleneckCard from "./BottleneckCard";
-import DayTankCard from "./DayTankCard";
+import ProfilLokasiCard from "./ProfilLokasiCard";
 import TankTable2 from "./TankTable2";
 import ActiveAlertCard from "./ActiveAlertCard";
 
@@ -21,7 +21,7 @@ export default function Dashboard2Body({
   return (
     <>
       {/* Bottleneck Site is its own full-width row now — it doesn't need to line
-          up with Status Kesiagaan Day Tank, and the site filter sits right under it
+          up with Profil Lokasi, and the site filter sits right under it
           since Bottleneck's overview is the thing the filter actually drives. */}
       <BottleneckCard site={site} />
       <select
@@ -34,14 +34,14 @@ export default function Dashboard2Body({
         {SITE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
       </select>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_420px]">
+      <div className="mt-4 mb-16 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_420px]">
         <TankTable2 site={site} onSelect={setSelected} />
         <div className="flex flex-col gap-4">
           <ActiveAlertCard site={site} />
-          <DayTankCard onSelect={setSelected} />
-          <SystemHealth />
+          <ProfilLokasiCard site={site} />
         </div>
       </div>
+      <SystemHealth />
 
       {selected && <TankDetailPopup tangki={selected} onClose={() => setSelected(null)} />}
     </>

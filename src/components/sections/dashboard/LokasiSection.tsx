@@ -3,7 +3,6 @@ import { useState } from "react";
 import { PROFIL_LOKASI } from "@/lib/data/dashboard";
 import TankTable from "./TankTable";
 import ProfilLokasiPanel from "./ProfilLokasiPanel";
-import SystemHealth from "./SystemHealth";
 
 const NAMA_LOKASI = Object.keys(PROFIL_LOKASI);
 
@@ -21,7 +20,6 @@ export default function LokasiSection() {
       </div>
       <div className="flex flex-col gap-4">
         <ProfilLokasiPanel lokasi={lokasi} onChangeLokasi={setLokasi} />
-        <SystemHealth />
       </div>
     </div>
   );

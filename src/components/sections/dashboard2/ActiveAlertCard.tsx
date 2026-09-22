@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { AlertOctagon, ChevronDown, Send } from "lucide-react";
-import { AMBANG } from "@/lib/data/dashboard";
-import { DETAIL_PER_TANGKI, tangkiForSite } from "@/lib/data/dashboard2";
+import { AMBANG, SKALA_TAMPILAN_PPM } from "@/lib/data/dashboard";
+import { displayInfo, tangkiForSite } from "@/lib/data/dashboard2";
 import KirimPermintaanPopup from "@/components/sections/dashboard/KirimPermintaanPopup";
 
 const GAYA: Record<string, { border: string; bg: string; stripe: string; text: string }> = {
@@ -70,7 +70,7 @@ export default function ActiveAlertCard({ site }: { site: string }) {
                   aria-current={a.kode === t.kode}
                   className={`flex w-full items-center justify-between gap-2 rounded px-2 py-1.5 text-left hover:bg-brand-100/60 ${a.kode === t.kode ? "bg-brand-100/60 font-semibold" : ""}`}
                 >
-                  <span className="truncate text-[#172B3A]">{a.lokasi}</span>
+                  <span className="truncate text-[#172B3A]">{displayInfo(a).siteLabel}</span>
                   <span className={`ml-2 flex-none text-xs font-bold ${GAYA[a.status].text}`}>{a.status}</span>
                 </button>
               </li>
@@ -79,17 +79,30 @@ export default function ActiveAlertCard({ site }: { site: string }) {
         )}
       </div>
       <div className="rounded-md border border-black/5 bg-white p-3">
-        <p className="text-sm font-bold text-[#172B3A]">Peringatan: {t.kode}</p>
-        <p className="text-xs text-[#5A6B7B]">{t.lokasi}</p>
+        <p className="text-sm font-bold text-[#172B3A]">Peringatan: {displayInfo(t).kode}</p>
+        <p className="text-xs text-[#5A6B7B]">{displayInfo(t).siteLabel}</p>
         <div className="mt-2 flex items-end justify-between">
           <p><span className={`text-3xl font-bold tabular-nums ${gaya.text}`}>{t.airPpm}</span><span className="ml-1 text-sm text-[#5A6B7B]">ppm</span></p>
           {over && (
-            <p className="text-right">
-              <span className={`block text-lg font-bold tabular-nums ${gaya.text}`}>+{pct}%</span>
-              <span className="text-xs text-[#5A6B7B]">Batas {AMBANG.batas}</span>
-            </p>
+            <p className={`text-base font-bold tabular-nums ${gaya.text}`}>+{pct}%</p>
           )}
         </div>
+        <div className="relative mt-4 h-1.5 w-full overflow-visible rounded-full bg-[#172B3A]/10" aria-hidden="true">
+          <span
+            className={`absolute inset-y-0 left-0 rounded-full ${gaya.stripe}`}
+            style={{ width: `${Math.min(100, (t.airPpm / SKALA_TAMPILAN_PPM) * 100)}%` }}
+          />
+          <span
+            className="absolute -top-1 -bottom-1 w-0.5 bg-[#B83232]"
+            style={{ left: `${(AMBANG.batas / SKALA_TAMPILAN_PPM) * 100}%` }}
+          />
+        </div>
+        <span
+          className="relative block w-fit -translate-x-1/2 text-[10px] font-semibold text-[#B83232]"
+          style={{ left: `${(AMBANG.batas / SKALA_TAMPILAN_PPM) * 100}%` }}
+        >
+          {AMBANG.batas} ppm
+        </span>
         <p className="mt-2 text-xs text-[#5A6B7B]">Tenggat tindakan: <span className="font-semibold text-[#172B3A]">14 hari</span></p>
       </div>
       <button
@@ -105,7 +118,7 @@ export default function ActiveAlertCard({ site }: { site: string }) {
         <KirimPermintaanPopup
           // Every tank monitored at this site is selectable here, not just the
           // one shown above — e.g. at RS Medika Center that's both T-101 and DT-101.
-          daftarTangki={tangkiForSite(site).map((x) => ({ ...x, kode: DETAIL_PER_TANGKI[x.kode]?.kode ?? x.kode }))}
+          daftarTangki={tangkiForSite(site).map((x) => ({ ...x, kode: displayInfo(x).kode }))}
           onClose={() => setShowKirim(false)}
         />
       )}
