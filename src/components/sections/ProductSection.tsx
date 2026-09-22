@@ -1,3 +1,4 @@
+import Image from "next/image";
 import SectionBadge from "@/components/sections/SectionBadge";
 import { product } from "@/lib/data/product";
 
@@ -22,6 +23,13 @@ export default function ProductSection() {
         <h2 className="mt-6 max-w-4xl text-center text-3xl font-bold leading-tight md:text-5xl">
           {product.tagline}
         </h2>
+        <Image
+          src={product.productImage}
+          alt={product.name}
+          width={800}
+          height={800}
+          className="mt-12 w-full max-w-xl"
+        />
       </div>
     </section>
   );
