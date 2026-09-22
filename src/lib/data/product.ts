@@ -4,5 +4,5 @@ export const product = {
   description:
     "Pantau kadar air dan suhu bahan bakar secara real-time. Dapatkan peringatan dini jika kualitas solar turun, sehingga genset selalu siap saat dibutuhkan.",
   heroImage: "",
-  productImage: "",
+  productImage: "/produk-exploded.webp",
 };

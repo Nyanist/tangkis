@@ -19,6 +19,20 @@ const config: Config = {
           800: "#2b5a17",
           900: "#1f3d12",
           950: "#12260a",
+          // Dim gray, from public/color-scheme.jpeg — a deliberate off-scale dark accent.
+          dark: "#596869",
+        },
+        // Same values, kept as a second name for reference — not used by any component.
+        "old-brand": {
+          50: "#f3f8ef",
+          100: "#d9ead3",
+          300: "#b6d7a8",
+          500: "#93c47d",
+          600: "#6aa84f",
+          700: "#38761d",
+          800: "#2b5a17",
+          900: "#1f3d12",
+          950: "#12260a",
         },
       },
       fontFamily: {
