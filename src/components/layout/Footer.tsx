@@ -97,8 +97,12 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="py-4 text-center text-xs text-slate-500">
-        © 2026 {product.name}. Hak Cipta Dilindungi
+      <div className="flex flex-col items-center justify-center gap-2 border-t border-white/10 py-4 text-center text-xs text-slate-500 sm:flex-row sm:gap-4">
+        <span>© 2026 {product.name}. Hak Cipta Dilindungi</span>
+        <span className="flex items-center gap-4">
+          <Link href="#" className="hover:text-[#f0f0f0]">Syarat & Ketentuan</Link>
+          <Link href="#" className="hover:text-[#f0f0f0]">Kebijakan Privasi</Link>
+        </span>
       </div>
     </footer>
   );
