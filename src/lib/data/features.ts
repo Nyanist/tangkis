@@ -4,29 +4,36 @@ export const features = [
   {
     id: 1,
     icon: Radio,
-    title: "Pemantauan real-time",
+    title: "Deteksi air di dasar tangki",
     description:
-      "Sensor kadar air dan suhu mengirim data live via gateway ESP32 ke dashboard pusat.",
+      "Probe mendeteksi lapisan air bebas yang mengendap di dasar tangki beserta riwayat suhu penyimpanannya, dengan hasil ditampilkan sebagai estimasi tingkat kandungan air, bukan pembacaan langsung, karena metode pengukurannya berbeda dari uji laboratorium.",
   },
   {
     id: 2,
     icon: BellRing,
-    title: "Peringatan ambang otomatis",
+    title: "Tangki mana yang berisiko bulan ini",
     description:
-      "Status HIJAU / KUNING / MERAH mengikuti ambang 220 & 300 ppm — peringatan keluar sebelum melewati batas spesifikasi.",
+      "Dasbor mengurutkan seluruh tangki berdasarkan risiko, sehingga pemeriksaan bisa diarahkan ke yang paling perlu lebih dulu. Inilah yang membedakan TANGKIS dari layanan pembersihan tangki yang sudah ada, karena layanan tersebut baru bertindak setelah ada kecurigaan kerusakan, sedangkan TANGKIS memberi tahu lebih awal.",
   },
   {
     id: 3,
     icon: TrendingUp,
-    title: "Tren & riwayat tangki",
+    title: "Status hijau, kuning, merah per tangki",
     description:
-      "Grafik tren 6 bulan per tangki memudahkan prediksi jadwal pembersihan.",
+      "Status disusun dari tiga hal yang terukur, yaitu tebal lapisan air, lama bahan bakar mengendap sejak pengisian terakhir, dan ayunan suhu harian yang memicu pengembunan.",
   },
   {
     id: 4,
     icon: FileText,
-    title: "Laporan & tindak lanjut",
+    title: "Riwayat dan tren tiap tangki",
     description:
-      "Unduh laporan bulanan dan kirim permintaan pembersihan langsung dari panel peringatan.",
+      "Grafik menunjukkan perkembangan kondisi tiap tangki dari waktu ke waktu, memudahkan pengelola gedung melihat kapan tren mulai memburuk sebelum sampai ke status merah.",
+  },
+  {
+    id: 5,
+    icon: FileText,
+    title: "Laporan dan jalur tindak lanjut",
+    description:
+      "Rekap kondisi tiap tangki siap diunduh untuk kebutuhan audit, dan tangki berstatus merah dapat diteruskan ke mitra pembersihan bahan bakar.",
   },
 ];
