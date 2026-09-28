@@ -46,7 +46,7 @@ export default function ValueSection() {
       <div className={`relative ${KONTEN_SECTION}`}>
         <div className="mb-10 lg:mb-12">
           <FadeUp delay={0.1}>
-            <SectionBadge number="02" label="Nilai Utama" dark />
+            <SectionBadge number="01" label="Nilai Utama" dark />
           </FadeUp>
         </div>
 
@@ -68,8 +68,8 @@ export default function ValueSection() {
                   </p>
                 </div>
 
-                {/* Bottom description */}
-                <div className="mt-8">
+                {/* Bottom description — hidden until hover */}
+                <div className="mt-8 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                   <p className="text-sm leading-relaxed text-slate-400 lg:text-base">
                     {item.description}
                   </p>
