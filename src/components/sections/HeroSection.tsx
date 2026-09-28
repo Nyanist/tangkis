@@ -23,7 +23,7 @@ export default function HeroSection() {
             <h1 className="mt-6 text-[clamp(2rem,1.25rem+2.5vw,3.25rem)] font-extrabold leading-tight">{product.tagline}</h1>
           </FadeUp>
           <FadeUp delay={0.15}>
-            <p className="mt-6 max-w-2xl text-sm text-slate-300 sm:text-base lg:text-lg">{product.description}</p>
+            <p className="mt-6 max-w-2xl font-description text-sm text-slate-300 sm:text-base lg:text-lg">{product.description}</p>
             <div className="mt-8 flex flex-wrap justify-center gap-3 md:justify-start">
               <Link
                 href="/dashboard"

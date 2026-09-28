@@ -22,7 +22,7 @@ export default function FeaturesSection() {
             <div>
               <h2 className="text-3xl font-bold">{product.name}</h2>
               <p className="mt-2 font-medium text-brand-300">{product.tagline}</p>
-              <p className="mt-4 text-sm text-slate-300">{product.description}</p>
+              <p className="mt-4 font-description text-sm text-slate-300">{product.description}</p>
               <Link
                 href="/dashboard"
                 className="mt-6 inline-block rounded-full bg-[#f0f0f0] px-6 py-3 text-sm font-semibold text-brand-950 hover:bg-brand-100"

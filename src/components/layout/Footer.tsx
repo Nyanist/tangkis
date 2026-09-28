@@ -27,7 +27,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <h2 className="text-4xl font-extrabold leading-tight md:text-6xl">{product.tagline}</h2>
-            <p className="mt-6 max-w-xl text-slate-400">{product.description}</p>
+            <p className="mt-6 max-w-xl font-description text-slate-400">{product.description}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/dashboard"

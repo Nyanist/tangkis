@@ -7,6 +7,10 @@
   --foreground: #172b3a;
 }
 
+h1 {
+  font-family: var(--font-space-grotesk), sans-serif;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
