@@ -24,7 +24,7 @@ export default function ActiveAlertCard({ site }: { site: string }) {
 
   if (!t) {
     return (
-      <aside aria-labelledby="judul-alert" className="rounded-lg border border-brand-100 bg-white p-4 md:p-5">
+      <aside aria-labelledby="judul-alert" className="rounded-lg border border-brand-100 bg-white p-3 md:p-5">
         <h2 id="judul-alert" className="mb-2 flex items-center gap-2 font-semibold text-brand-950">
           <AlertOctagon className="h-4.5 w-4.5 text-[#5A6B7B]" />
           Active Alert
@@ -39,7 +39,7 @@ export default function ActiveAlertCard({ site }: { site: string }) {
   const over = t.airPpm > AMBANG.batas;
 
   return (
-    <aside aria-labelledby="judul-alert" className={`relative overflow-hidden rounded-lg border ${gaya.border} ${gaya.bg} p-4 md:p-5`}>
+    <aside aria-labelledby="judul-alert" className={`relative overflow-hidden rounded-lg border ${gaya.border} ${gaya.bg} p-3 md:p-5`}>
       <span className={`absolute inset-x-0 top-0 h-1 ${gaya.stripe}`} aria-hidden="true" />
       <div className="relative mb-2 flex items-center justify-between gap-2">
         <h2 id="judul-alert" className="flex items-center gap-2 font-semibold text-brand-950">
@@ -82,7 +82,7 @@ export default function ActiveAlertCard({ site }: { site: string }) {
         <p className="text-sm font-bold text-[#172B3A]">Peringatan: {displayInfo(t).kode}</p>
         <p className="text-xs text-[#5A6B7B]">{displayInfo(t).siteLabel}</p>
         <div className="mt-2 flex items-end justify-between">
-          <p><span className={`text-3xl font-bold tabular-nums ${gaya.text}`}>{t.airPpm}</span><span className="ml-1 text-sm text-[#5A6B7B]">ppm</span></p>
+          <p><span className={`text-2xl md:text-3xl font-bold tabular-nums ${gaya.text}`}>{t.airPpm}</span><span className="ml-1 text-sm text-[#5A6B7B]">ppm</span></p>
           {over && (
             <p className={`text-base font-bold tabular-nums ${gaya.text}`}>+{pct}%</p>
           )}

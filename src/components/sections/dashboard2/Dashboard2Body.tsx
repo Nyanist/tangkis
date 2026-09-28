@@ -34,11 +34,14 @@ export default function Dashboard2Body({
         {SITE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
       </select>
 
-      <div className="mt-4 mb-16 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_420px]">
-        <TankTable2 site={site} onSelect={setSelected} />
-        <div className="flex flex-col gap-4">
+      <div className="mt-4 mb-16 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_minmax(280px,420px)]">
+        {/* On mobile these sit above Daftar Tangki, side by side; lg+ they stack in the right rail. */}
+        <div className="order-1 grid min-w-0 grid-cols-1 gap-3 lg:order-2 lg:flex lg:flex-col lg:gap-4">
           <ActiveAlertCard site={site} />
           <ProfilLokasiCard site={site} />
+        </div>
+        <div className="order-2 min-w-0 lg:order-1">
+          <TankTable2 site={site} onSelect={setSelected} />
         </div>
       </div>
       <SystemHealth />
