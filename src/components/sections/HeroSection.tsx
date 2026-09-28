@@ -13,8 +13,8 @@ export default function HeroSection() {
   const hintOpacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   return (
-    <section className="md:p-3">
-      <div className="relative flex h-fill min-h-[70dvh] pb-[4%] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 py-16 text-center text-[#f0f0f0] md:items-start md:justify-start md:rounded-3xl md:px-10 md:text-left">
+    <section>
+      <div className="relative flex h-fill min-h-[70dvh] pb-[4%] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 pt-20 pb-24 text-center text-[#f0f0f0] md:items-start md:justify-start md:px-10 md:text-left">
         <CircuitAccent />
         {/* lg:max-w-[52%] keeps the copy clear of the product image, which starts
             at 72% − half its width. Both are percentages so they scale together. */}
@@ -50,7 +50,7 @@ export default function HeroSection() {
           priority
           className="pointer-events-none absolute bottom-0 xl:left-[77%] left-[78%] z-10 hidden -translate-x-1/2 lg:block lg:w-[80%] xl:w-[80%]"
         />
-        <ScrollHint opacity={hintOpacity} className="absolute bottom-8 inset-x-0 mx-auto w-fit" />
+        <ScrollHint opacity={hintOpacity} className="absolute bottom-8 right-8 md:right-10" />
       </div>
     </section>
   );

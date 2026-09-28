@@ -4,8 +4,8 @@ import FadeUp from "@/components/motion/FadeUp";
 
 export default function AboutHeroSection() {
   return (
-    <section className="md:p-3">
-      <div className="relative flex min-h-[70dvh] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 py-24 mb-6 text-center text-[#f0f0f0] md:items-start md:rounded-3xl md:px-10 md:text-left">
+    <section>
+      <div className="relative flex min-h-[70dvh] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 pt-36 pb-24 text-center text-[#f0f0f0] md:items-start md:px-10 md:text-left">
         <video
           src="/logo-animation.mp4"
           autoPlay

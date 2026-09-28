@@ -3,15 +3,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Home, Info, LayoutDashboard, LogIn, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { product } from "@/lib/data/product";
 
 const links = [
-  { href: "/", label: "Beranda" },
-  { href: "/about", label: "Tentang Kami" },
-  { href: "/dashboard", label: "Demo Dashboard" },
+  { href: "/", label: "Beranda", icon: Home },
+  { href: "/about", label: "Tentang Kami", icon: Info },
+  { href: "/dashboard", label: "Demo Dashboard", icon: LayoutDashboard },
+  { href: "/faq", label: "FAQ", icon: HelpCircle },
 ];
 
 // Flip to false and save to hide the navbar on /dashboard* pages. Code-only switch, no UI control.
@@ -20,6 +21,7 @@ const SHOW_ON_DASHBOARD = true;
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
   const pathname = usePathname();
   const menuRef = useRef<HTMLDivElement>(null);
   // Pages that open with a dark hero let the docked navbar stay transparent; others dock solid.
@@ -47,6 +49,7 @@ export default function Navbar() {
   }, [open]);
 
   if (!SHOW_ON_DASHBOARD && pathname.startsWith("/dashboard")) return null;
+  if (pathname === "/login") return null;
 
   return (
     <header
@@ -70,22 +73,47 @@ export default function Navbar() {
         <Link href="/" className="flex shrink-0 items-center">
           <Image src="/logo-txt-hijau.webp" alt={product.name} width={180} height={40} className="h-8 w-auto lg:h-10" priority />
         </Link>
-        <div className="hidden gap-6 md:flex lg:gap-8">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={cn(
-                "text-sm font-medium text-white/70 hover:text-[#f0f0f0]",
-                pathname === l.href && "text-[#f0f0f0] underline underline-offset-4"
-              )}
-            >
-              {l.label}
-            </Link>
-          ))}
+        {/* Border frames in, then a brand-color block fills down from the top —
+            hover-only, fades back out completely once the pointer leaves. */}
+        <div className="hidden items-center gap-2 md:flex">
+          {links.map((l) => {
+            const engaged = hovered === l.href;
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                onMouseEnter={() => setHovered(l.href)}
+                onMouseLeave={() => setHovered(null)}
+                className="relative inline-block px-3 py-2"
+              >
+                <span
+                  className={cn(
+                    "relative z-10 block text-sm font-medium uppercase tracking-wide text-white/70 transition-colors duration-300",
+                    engaged && "text-white"
+                  )}
+                >
+                  {l.label}
+                </span>
+                <span
+                  className={cn(
+                    "absolute inset-0 origin-center scale-y-[2] border-t-2 border-b-2 border-brand-600/60 opacity-0 transition-all duration-300",
+                    engaged && "scale-y-100 opacity-100"
+                  )}
+                  aria-hidden="true"
+                />
+                <span
+                  className={cn(
+                    "absolute inset-0 origin-top scale-y-0 bg-brand-800 opacity-0 transition-all duration-300",
+                    engaged && "scale-y-100 opacity-100"
+                  )}
+                  aria-hidden="true"
+                />
+              </Link>
+            );
+          })}
         </div>
         <Link
-          href="#"
+          href="/login"
           className="hidden shrink-0 rounded-full bg-[#f0f0f0] px-5 py-2 text-sm font-semibold text-brand-950 hover:bg-brand-100 md:block"
         >
           Login
@@ -110,18 +138,20 @@ export default function Navbar() {
                   href={l.href}
                   onClick={closeMenu}
                   className={cn(
-                    "block rounded-lg px-3 py-2 text-sm font-medium text-white/70 hover:bg-white/10 hover:text-[#f0f0f0]",
+                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white/70 hover:bg-white/10 hover:text-[#f0f0f0]",
                     pathname === l.href && "bg-white/10 text-[#f0f0f0]"
                   )}
                 >
+                  <l.icon className="h-4 w-4" aria-hidden />
                   {l.label}
                 </Link>
               ))}
               <Link
-                href="#"
+                href="/login"
                 onClick={closeMenu}
-                className="mt-2 block rounded-lg bg-[#f0f0f0] px-3 py-2 text-center text-sm font-semibold text-brand-950 hover:bg-brand-100"
+                className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-[#f0f0f0] px-3 py-2 text-sm font-semibold text-brand-950 hover:bg-brand-100"
               >
+                <LogIn className="h-4 w-4" aria-hidden />
                 Login
               </Link>
             </div>
