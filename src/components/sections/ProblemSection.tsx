@@ -12,7 +12,7 @@ type Problem = (typeof problems)[number];
 function ProblemCard({ p }: { p: Problem }) {
   return (
     <div
-      className="relative flex min-h-[24rem] flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-6 pb-8 text-[#f0f0f0] lg:min-h-[min(500px,50vh)]"
+      className="relative flex min-h-[24rem] h-fill flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-6 pb-8 text-[#f0f0f0] shadow-[inset_0_0_2.5rem_rgba(35,41,42,0.65)] lg:min-h-[min(500px,50vh)]"
       style={{ backgroundImage: `url(${p.image})` }}
     >
       <p.icon className="relative h-14 w-14" strokeWidth={1.5} aria-hidden />
