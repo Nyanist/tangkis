@@ -76,7 +76,7 @@ export default function ProblemSection() {
       <div
         className={cn(
           KONTEN_SECTION,
-          pinned && "sticky top-0 flex h-screen flex-col justify-center pb-16 pt-24"
+          pinned && "sticky top-0 flex h-screen flex-col justify-center pb-6 pt-24"
         )}
       >
         {/* Heading is plain (no fade) while pinned; the static layout keeps the usual scroll-in. */}
@@ -101,7 +101,7 @@ export default function ProblemSection() {
           )}
         </div>
         {pinned && (
-          <ScrollHint dark={!hintWhite} className="absolute bottom-8 right-8 md:right-10" />
+          <ScrollHint dark={!hintWhite} className="absolute bottom-12 right-8 md:right-10" />
         )}
       </div>
     </section>

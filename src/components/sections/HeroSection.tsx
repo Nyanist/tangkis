@@ -14,7 +14,7 @@ export default function HeroSection() {
 
   return (
     <section className="md:p-3">
-      <div className="relative flex h-fill min-h-[70dvh] pb-[4%] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 text-center text-[#f0f0f0] md:items-start md:justify-start md:rounded-3xl md:px-10 md:text-left">
+      <div className="relative flex h-fill min-h-[70dvh] pb-[4%] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 py-8 text-center text-[#f0f0f0] md:items-start md:justify-start md:rounded-3xl md:px-10 md:text-left">
         <CircuitAccent />
         {/* lg:max-w-[52%] keeps the copy clear of the product image, which starts
             at 72% − half its width. Both are percentages so they scale together. */}
