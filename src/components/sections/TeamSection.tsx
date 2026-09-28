@@ -25,7 +25,7 @@ export default function TeamSection() {
           <h2 className="mt-6 max-w-3xl text-3xl font-bold md:text-5xl">Meet the Team</h2>
         </FadeUp>
 
-        <div className="relative mx-auto w-[80%]" style={{ aspectRatio: "3819 / 1600" }}>
+        <div className="relative mx-auto w-[90%] lg:w-[80%]" style={{ aspectRatio: "3819 / 1600" }}>
           {/* overflow-hidden lives on this inner wrapper, not the outer box — so it only
               crops the photo, not the hover labels/lines that render above the outer box. */}
           <div className="absolute inset-0 overflow-hidden">
