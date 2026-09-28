@@ -21,7 +21,7 @@ const PRODUCT_CALLOUTS = [
 ];
 
 export default function FeaturesSection() {
-  const [active, setActive] = useState<number | null>(features[0].id); // null = all collapsed
+  const [active, setActive] = useState<number | null>(null); // null = all collapsed
 
   return (
     <section className="bg-slate-50 py-16 lg:py-24">
