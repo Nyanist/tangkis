@@ -1,0 +1,42 @@
+export const team = [
+  {
+    id: 1,
+    name: "Natanael C. Pangaribuan",
+    role: "COO & Field Operations",
+    photo: "",
+    bio: "Teknik Tenaga Listrik 2022",
+    linkedin: "",
+  },
+  {
+    id: 2,
+    name: "Aryandi Fachrurizal",
+    role: "CEO & Business Development",
+    photo: "",
+    bio: "Teknik Tenaga Listrik 2024",
+    linkedin: "",
+  },
+  {
+    id: 3,
+    name: "Fakhri Kartiko Wicaksono",
+    role: "CTO & Device Development Lead",
+    photo: "",
+    bio: "Teknik Telekomunikasi 2025",
+    linkedin: "",
+  },
+  {
+    id: 4,
+    name: "M. Jordan Ferimeison",
+    role: "CPO & Firmware Lead",
+    photo: "",
+    bio: "Teknik Informatika 2024",
+    linkedin: "",
+  },
+  {
+    id: 5,
+    name: "Aulia Rahman",
+    role: "CMO & Finance Strategy",
+    photo: "",
+    bio: "Kewirausahaan 2023",
+    linkedin: "",
+  },
+];
