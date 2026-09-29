@@ -63,7 +63,7 @@ export default function FeaturesSection() {
             <h2 className="mb-8 mt-6 text-3xl font-bold md:text-5xl">Fitur Utama</h2>
           </FadeUp>
           <div className="border-t border-slate-200">
-            {features.map((f, i) => {
+            {features.map((f) => {
               const isOpen = active === f.id;
               return (
                 <button

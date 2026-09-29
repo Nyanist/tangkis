@@ -6,7 +6,7 @@ import { team } from "@/lib/data/team";
 import { KONTEN_SECTION } from "@/lib/utils";
 
 // Face position of each team member, as % of the CROPPED display box below (not the raw
-// /foto-tim.png, which has ~39% of blank transparent headroom above the heads — the box
+// /foto-tim.webp, which has ~39% of blank transparent headroom above the heads — the box
 // keeps only the bottom 1600 of its 2238px height, via object-cover + object-bottom).
 const FACE_POSITION: Record<number, { x: number; y: number }> = {
   1: { x: 20, y: 29 },
@@ -29,7 +29,7 @@ export default function TeamSection() {
           {/* overflow-hidden lives on this inner wrapper, not the outer box — so it only
               crops the photo, not the hover labels/lines that render above the outer box. */}
           <div className="absolute inset-0 overflow-hidden">
-            <Image src="/foto-tim.png" alt="Tim TANGKIS" fill className="object-cover object-bottom" />
+            <Image src="/foto-tim.webp" alt="Tim TANGKIS" fill className="object-cover object-bottom" />
           </div>
 
           {team.map((m) => {

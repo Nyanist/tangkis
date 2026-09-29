@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { PlayCircle } from "lucide-react";
 import SectionBadge from "@/components/sections/SectionBadge";
 import { product } from "@/lib/data/product";
 import { cn, KONTEN_SECTION } from "@/lib/utils";
@@ -23,6 +25,15 @@ export default function ProductSection() {
         <h2 className="mt-6 max-w-4xl text-center text-3xl font-bold leading-tight md:text-5xl">
           {product.tagline}
         </h2>
+        <Link
+          href="https://8eh.link/TontonTangkisSekarang"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 font-semibold backdrop-blur-sm hover:bg-white/20"
+        >
+          <PlayCircle className="h-5 w-5" aria-hidden />
+          Video Promosi
+        </Link>
         {/* Google Drive-hosted animation — embedded via its /preview iframe, no local copy to maintain. */}
         {/* <iframe
           src="https://drive.google.com/file/d/1Nzw4G71Bcq4auuIf7-SXmjvvVcY8daFd/preview"

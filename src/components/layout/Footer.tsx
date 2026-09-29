@@ -71,7 +71,7 @@ export default function Footer() {
               <Link href="#" aria-label="LinkedIn" className="text-slate-400 hover:text-[#f0f0f0]">
                 <LinkedinMark className="h-5 w-5" />
               </Link>
-              <Link href="#" aria-label="Instagram" className="text-slate-400 hover:text-[#f0f0f0]">
+              <Link href="https://instagram.com/tangkis.tech" aria-label="Instagram" className="text-slate-400 hover:text-[#f0f0f0]">
                 <InstagramMark className="h-5 w-5" />
               </Link>
               <Link href="mailto:hello@tangkis.tech" aria-label="Email" className="text-slate-400 hover:text-[#f0f0f0]">
