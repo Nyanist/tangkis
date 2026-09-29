@@ -9,7 +9,7 @@ export default function ProfilLokasiCard({ site }: { site: string }) {
   const profil = site ? PROFIL_LOKASI2[site] : undefined;
 
   return (
-    <section aria-labelledby="judul-profil2" className="rounded-lg border border-brand-100 bg-white p-4 md:p-5">
+    <section aria-labelledby="judul-profil2" className="rounded-lg border border-brand-100 bg-white p-3 md:p-5">
       <h2 id="judul-profil2" className="mb-3 flex items-center gap-2 font-semibold text-brand-950">
         <Building2 className="h-4.5 w-4.5 text-brand-700" />
         Profil Lokasi

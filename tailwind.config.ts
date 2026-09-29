@@ -36,7 +36,14 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "sans-serif"],
+        // body + heading 2
+        sans: ["var(--font-plus-jakarta-sans)", "sans-serif"],
+        // heading 1
+        heading: ["var(--font-space-grotesk)", "sans-serif"],
+        // tags / badges
+        mono: ["var(--font-jetbrains-mono)", "monospace"],
+        // description / lead copy — Satoshi loaded via Fontshare <link>, not next/font
+        description: ["Satoshi", "var(--font-plus-jakarta-sans)", "sans-serif"],
       },
     },
   },

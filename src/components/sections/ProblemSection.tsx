@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import SectionBadge from "@/components/sections/SectionBadge";
 import FadeUp from "@/components/motion/FadeUp";
 import ScrollHint from "@/components/motion/ScrollHint";
@@ -12,7 +12,7 @@ type Problem = (typeof problems)[number];
 function ProblemCard({ p }: { p: Problem }) {
   return (
     <div
-      className="relative flex min-h-[24rem] flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-6 pb-8 text-[#f0f0f0] lg:min-h-[min(500px,50vh)]"
+      className="relative flex min-h-[24rem] h-fill flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-6 pb-8 text-[#f0f0f0] shadow-[inset_0_0_2.5rem_rgba(35,41,42,0.65)] lg:min-h-[min(500px,50vh)]"
       style={{ backgroundImage: `url(${p.image})` }}
     >
       <p.icon className="relative h-14 w-14" strokeWidth={1.5} aria-hidden />
@@ -51,10 +51,6 @@ export default function ProblemSection() {
   const reduceMotion = useReducedMotion();
   const [desktop, setDesktop] = useState(false); // false on first render so SSR/hydration match
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const [hintWhite, setHintWhite] = useState(false);
-  // The hint is dark for the white page; flip it to white once card 3 is 50% in.
-  useMotionValueEvent(scrollYProgress, "change", (v) => setHintWhite(v >= CARD_START + 2 * CARD_STEP + CARD_SPAN / 2));
-
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
     const update = () => setDesktop(mq.matches);
@@ -70,20 +66,30 @@ export default function ProblemSection() {
     <section
       ref={ref}
       id="masalah"
-      className={cn("scroll-mt-24 bg-[#f0f0f0]", !pinned && "py-16 lg:py-24")}
+      className={cn("relative scroll-mt-24 bg-[#f0f0f0]", !pinned && "py-16 lg:py-24")}
       style={pinned ? { height: `${100 + PIN_VH}vh` } : undefined}
     >
+      {/* Full-bleed background, independent of KONTEN_SECTION's max-width. Sticky while pinned
+          so it stays put as the pinned content scrolls through card reveals. */}
+      <div
+        className={cn("bg-cover bg-center", pinned ? "sticky top-0 inset-x-0 h-screen" : "absolute inset-0")}
+        style={{ backgroundImage: "url(/masalah-and-further.webp)" }}
+      >
+        <div className="absolute inset-0 bg-black/55" />
+      </div>
+
       <div
         className={cn(
           KONTEN_SECTION,
-          pinned && "sticky top-0 flex h-screen flex-col justify-center pb-16 pt-24"
+          "relative z-10 text-[#f0f0f0]",
+          pinned && "-mt-[100vh] sticky top-0 flex h-screen flex-col justify-center pb-6 pt-24"
         )}
       >
         {/* Heading is plain (no fade) while pinned; the static layout keeps the usual scroll-in. */}
         {(() => {
           const heading = (
             <>
-              <SectionBadge number="04" label="Masalah" />
+              <SectionBadge number="04" label="Masalah" dark />
               <h2 className="mt-6 max-w-3xl text-3xl font-bold md:text-5xl">Masalah yang Kami Selesaikan</h2>
             </>
           );
@@ -101,7 +107,7 @@ export default function ProblemSection() {
           )}
         </div>
         {pinned && (
-          <ScrollHint dark={!hintWhite} className="absolute bottom-8 right-8 md:right-10" />
+          <ScrollHint dark={false} className="absolute bottom-12 right-8 md:right-10" />
         )}
       </div>
     </section>

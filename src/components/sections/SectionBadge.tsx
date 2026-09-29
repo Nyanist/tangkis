@@ -15,7 +15,7 @@ export default function SectionBadge({ number, label, dark, className }: Section
       </span>
       <span
         className={cn(
-          "-ml-3 rounded-full border py-1.5 pl-6 pr-4 text-sm font-medium",
+          "-ml-3 rounded-full border py-1.5 pl-6 pr-4 font-mono text-sm font-medium",
           dark ? "border-white/20 bg-white/10 text-[#f0f0f0]" : "bg-slate-100 text-slate-700"
         )}
       >

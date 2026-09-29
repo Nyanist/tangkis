@@ -4,8 +4,8 @@ import FadeUp from "@/components/motion/FadeUp";
 
 export default function AboutHeroSection() {
   return (
-    <section className="md:p-3">
-      <div className="relative flex min-h-[70dvh] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 py-24 mb-6 text-center text-[#f0f0f0] md:items-start md:rounded-3xl md:px-10 md:text-left">
+    <section>
+      <div className="relative flex min-h-[70dvh] flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 pt-36 pb-24 text-center text-[#f0f0f0] md:items-start md:px-10 md:text-left">
         <video
           src="/logo-animation.mp4"
           autoPlay
@@ -21,7 +21,7 @@ export default function AboutHeroSection() {
             <h1 className="mt-6 text-[clamp(2.25rem,1.5rem+3vw,3.75rem)] font-extrabold leading-tight">Tentang Kami</h1>
           </FadeUp>
           <FadeUp delay={0.3}>
-            <p className="mt-6 max-w-2xl text-base text-slate-300 sm:text-lg lg:text-xl">
+            <p className="mt-6 max-w-2xl font-description text-base text-slate-300 sm:text-lg lg:text-xl">
               TANGKIS dirancang untuk mengeliminasi titik buta pada sistem genset darurat. 
               Melalui integrasi sensor fisik, embedded system, dan telemetri real-time, 
               kami memberikan visibilitas penuh atas kualitas bahan bakar bagi pengelola rumah sakit, pusat data, dan gedung komersial sebelum pemadaman terjadi
