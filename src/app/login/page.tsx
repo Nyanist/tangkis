@@ -2,8 +2,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, EyeOff, Lock, Mail, ArrowLeft, ShieldCheck, Droplets, BellRing } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, ArrowLeft } from "lucide-react";
 import { product } from "@/lib/data/product";
+import { GlassFold } from "@/components/ui/glass-fold";
 
 // ponytail: static UI only — no auth wiring, form just prevents default. Hook up
 // to a real auth flow when there's a backend to call.
@@ -17,6 +18,10 @@ function GoogleMark(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+// "Pastikan ... Anda dengan TANGKIS" → everything before "dengan", so the headline
+// can break there and highlight the brand name.
+const taglineLead = product.tagline.replace(new RegExp(`\\s*dengan\\s+${product.name}\\s*$`), "");
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -122,35 +127,23 @@ export default function LoginPage() {
 
       {/* Brand panel */}
       <div className="relative hidden overflow-hidden bg-brand-950 lg:order-1 lg:block">
-        <Image src="/tagline-bg.webp" alt="" fill className="object-cover opacity-25" priority />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-950/85 to-brand-950/70" />
-        <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brand-500/20 blur-3xl" aria-hidden="true" />
-        <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-brand-300/10 blur-3xl" aria-hidden="true" />
+        {/* Animated WebGL folds: brand-700 panes, brand-950 base, mint lit edges. */}
+        <GlassFold color1="#3f8a34" color2="#12260a" color3="#bdebd0" speed={0.4} noise={0.1} className="absolute inset-0" />
+        {/* Scrim behind the copy so the white text stays readable over the bright edges. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-950/85 via-brand-950/55 to-brand-950/10" aria-hidden="true" />
 
-        <div className="relative flex h-full flex-col justify-center px-16 text-[#f0f0f0]">
-          <h2 className="text-4xl font-bold leading-tight">{product.tagline}</h2>
-          <p className="mt-4 max-w-md font-description text-white/70">{product.description}</p>
+        <div className="relative flex h-full flex-col justify-center px-16 text-[#f0f0f0] xl:px-20">
+          {/* Break before "dengan" so the brand name lands as the punchline, not an orphan. */}
+          <h2 className="max-w-xl font-heading text-5xl font-bold leading-[1.05] tracking-tight text-balance xl:text-6xl">
+            {taglineLead}
+            <br />
+            dengan <span className="text-brand-300">{product.name}</span>
+          </h2>
 
-          <div className="mt-10 space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10">
-                <Droplets className="h-[18px] w-[18px] text-brand-300" />
-              </span>
-              <span className="text-sm text-white/80">Pemantauan kadar air real-time</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10">
-                <BellRing className="h-[18px] w-[18px] text-brand-300" />
-              </span>
-              <span className="text-sm text-white/80">Peringatan dini sebelum genset dibutuhkan</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10">
-                <ShieldCheck className="h-[18px] w-[18px] text-brand-300" />
-              </span>
-              <span className="text-sm text-white/80">Riwayat dan laporan audit yang bisa ditelusuri</span>
-            </div>
-          </div>
+          {/* Soft dark shadow lifts the copy off the shader's bright folds. */}
+          <p className="mt-6 max-w-md font-description text-base font-medium leading-relaxed text-white/95 [text-shadow:0_1px_14px_rgba(18,38,10,0.85)]">
+            {product.description}
+          </p>
         </div>
       </div>
     </main>
