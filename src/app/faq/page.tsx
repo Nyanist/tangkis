@@ -18,8 +18,8 @@ export default function FaqPage() {
           <p className="mt-4 font-description text-[#5A6B7B]">
             We are here to help you with any questions you may have. If you don&apos;t find what you need, please
             contact us.{" "}
-            <Link href="mailto:hello@tangkis.tech" className="font-semibold text-brand-700 hover:text-brand-800">
-              hello@tangkis.tech
+            <Link href="mailto:tangkis.tech@gmail.com" className="font-semibold text-brand-700 hover:text-brand-800">
+              tangkis.tech@gmail.com
             </Link>
           </p>
         </div>
