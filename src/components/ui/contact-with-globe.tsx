@@ -17,8 +17,8 @@ const smoothEase = [0.25, 0.1, 0.25, 1] as const;
 // ponytail: phone is a decorative placeholder, like the LinkedIn/Instagram links
 // elsewhere in Footer.tsx — no dedicated support line configured yet.
 const CONTACT_LINKS = [
-  { icon: Mail, label: "hello@tangkis.tech", href: "mailto:hello@tangkis.tech" },
-  { icon: Phone, label: "+62 21 5550 100", href: "tel:+622155500100" },
+  { icon: Mail, label: "tangkis.tech@gmail.com", href: "mailto:tangkis.tech@gmail.com" },
+  { icon: Phone, label: "+62 00 0000 0000", href: "tel:+62 00 0000 0000" },
 ];
 
 interface GlobeWireframeProps {
