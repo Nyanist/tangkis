@@ -4,11 +4,10 @@ import { Mail } from "lucide-react";
 import FaqAccordion from "@/components/sections/FaqAccordion";
 import { KONTEN_SECTION } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
-
-const EMAIL = "tangkis.tech@gmail.com";
+import { mailtoTangkis } from "@/lib/mailto";
 
 export default function FaqContent() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   return (
     <div className={KONTEN_SECTION}>
@@ -38,13 +37,13 @@ export default function FaqContent() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link
-              href={`mailto:${EMAIL}`}
+            <a
+              href={mailtoTangkis(lang)}
               className="inline-flex items-center gap-2 rounded-full bg-brand-700 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-800"
             >
               <Mail className="h-4 w-4" aria-hidden="true" />
               Email
-            </Link>
+            </a>
             <Link
               href="https://instagram.com/tangkis.tech"
               className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white px-5 py-3 text-sm font-semibold text-brand-950 transition-colors hover:bg-brand-50"

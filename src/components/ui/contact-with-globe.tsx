@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
+import { EMAIL_TANGKIS, mailtoTangkis } from "@/lib/mailto";
 import { ArrowRight, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
@@ -15,8 +16,9 @@ import type { GeoPermissibleObjects } from "d3";
 
 const smoothEase = [0.25, 0.1, 0.25, 1] as const;
 
+// The email href is filled in at render time with the template in the visitor's language (see lib/mailto.ts).
 const CONTACT_LINKS = [
-  { icon: Mail, label: "tangkis.tech@gmail.com", href: "mailto:tangkis.tech@gmail.com" },
+  { icon: Mail, label: EMAIL_TANGKIS, href: "" },
   { icon: Phone, label: "+62 813 1614 9609", href: "tel:+6281316149609" },
 ];
 
@@ -523,7 +525,7 @@ export default function ContactWithGlobe({
   description,
   className,
 }: ContactWithGlobeProps) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   title ??= t("Hubungi Kami", "Contact Us");
   subtitle ??= t("Kontak", "Contact");
   description ??= t(
@@ -583,16 +585,14 @@ export default function ContactWithGlobe({
             {CONTACT_LINKS.map(({ icon: Icon, label, href }, i) => (
               <motion.a
                 key={label}
-                href={href}
+                href={href || mailtoTangkis(lang)}
                 initial={{ opacity: 0, x: -12 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.3 + i * 0.1, ease: smoothEase }}
                 className="group flex w-fit items-center gap-3 text-sm text-slate-400 transition-colors duration-200 hover:text-[#f0f0f0]"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 transition-all duration-200 group-hover:border-brand-300/40 group-hover:bg-brand-500/10">
-                  <Icon className="h-3.5 w-3.5 text-slate-400 transition-colors duration-200 group-hover:text-brand-300" />
-                </div>
+                <Icon className="h-4 w-4 shrink-0 text-slate-400 transition-colors duration-200 group-hover:text-brand-300" strokeWidth={1.75} aria-hidden />
                 {label}
               </motion.a>
             ))}

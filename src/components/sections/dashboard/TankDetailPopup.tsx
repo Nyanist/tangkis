@@ -46,9 +46,7 @@ export default function TankDetailPopup({ tangki, onClose }: { tangki: Tangki; o
                 const Ikon = IKON_KESEHATAN[item.ikon] ?? IKON_KESEHATAN.pantau;
                 return (
                   <li key={item.nama} className="flex items-center gap-3 border-t border-brand-100 py-2 first:border-t-0 first:pt-0 last:pb-0">
-                    <span className="grid h-7 w-7 flex-none place-items-center rounded-md bg-brand-100/60 text-brand-700">
-                      <Ikon className="h-4 w-4" />
-                    </span>
+                    <Ikon className="h-4 w-4 flex-none text-brand-700" strokeWidth={1.75} aria-hidden />
                     <span className="min-w-0 flex-1 text-sm">{t(item.nama, DATA_EN[item.nama])}</span>
                     <span className={cn("inline-flex items-center gap-1.5 text-xs font-bold tracking-wider", item.status === "ONLINE" ? "text-[#1F6B42]" : "text-[#B83232]")}>
                       <span className={cn("h-2 w-2 rounded-full", item.status === "ONLINE" ? "bg-[#6aa84f]" : "bg-[#D64545]")} aria-hidden="true" />

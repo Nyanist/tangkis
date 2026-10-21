@@ -8,6 +8,7 @@ import { Mail } from "lucide-react";
 import { product } from "@/lib/data/product";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
+import { EMAIL_TANGKIS, mailtoTangkis } from "@/lib/mailto";
 import HalftoneWordmarkFooter from "@/components/ui/halftone-wordmark-footer";
 
 // ponytail: lucide-react dropped brand/logo icons (trademark policy) — hand-rolled
@@ -28,7 +29,7 @@ const HIDE_CTA_ON = ["/about"];
 
 // Every page ends on the halftone wordmark footer (dots spelling "tangkis"), under the contact block.
 function HomeFooter({ showCta }: { showCta: boolean }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   // The wordmark is painted on a canvas, which can't read CSS variables, so take the page's already-loaded face by its
   // real (hashed) family name.
   const [face, setFace] = useState<string | undefined>(undefined);
@@ -76,13 +77,13 @@ function HomeFooter({ showCta }: { showCta: boolean }) {
               title: t("Sosial", "Social"),
               links: [
                 { label: "Instagram", href: "https://instagram.com/tangkis.tech", icon: <InstagramMark className="h-4 w-4" /> },
-                { label: "Email", href: "mailto:tangkis.tech@gmail.com", icon: <Mail className="h-4 w-4" /> },
+                { label: "Email", href: mailtoTangkis(lang), icon: <Mail className="h-4 w-4" /> },
               ],
             },
             {
               title: t("Kontak", "Contact"),
               links: [
-                { label: "tangkis.tech@gmail.com", href: "mailto:tangkis.tech@gmail.com" },
+                { label: EMAIL_TANGKIS, href: mailtoTangkis(lang) },
                 { label: "+62 813 1614 9609", href: "tel:+6281316149609" },
               ],
             },

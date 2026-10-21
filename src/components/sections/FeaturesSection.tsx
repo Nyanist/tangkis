@@ -142,16 +142,19 @@ export default function FeaturesSection() {
                   className="group block w-full border-b border-slate-200 py-8 text-left"
                 >
                   <div className="flex items-center gap-4">
-                    {/* icon sits in its own fixed-size tile so every title starts on the same left edge */}
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
-                      <f.icon className="h-5 w-5" aria-hidden />
-                    </span>
+                    {/* Bare line icon in a fixed-width slot so every title starts on the same left edge; it goes from
+                        quiet gray to brand green when the row is hovered or open. */}
+                    <f.icon
+                      className={`h-6 w-6 shrink-0 transition-colors duration-300 ${isOpen ? "text-brand-700" : "text-slate-400 group-hover:text-brand-700"}`}
+                      strokeWidth={1.5}
+                      aria-hidden
+                    />
                     <h3 className="min-w-0 flex-1 text-lg font-semibold leading-snug sm:text-xl">{t(f.title)}</h3>
                     <ArrowUpRight className="h-6 w-6 shrink-0 transition-transform duration-300 group-hover:rotate-45" aria-hidden />
                   </div>
                   <div className="accordion-content" data-open={isOpen}>
                     <div className="overflow-hidden">
-                      <p className="pl-[3.75rem] pr-10 pt-4 text-slate-600">{t(f.description)}</p>
+                      <p className="pl-10 pr-10 pt-4 text-slate-600">{t(f.description)}</p>
                     </div>
                   </div>
                 </button>

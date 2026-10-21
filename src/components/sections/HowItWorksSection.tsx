@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useReducedMotion } from "framer-motion";
-import { Check, X } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import FadeUp from "@/components/motion/FadeUp";
 import { cn, KONTEN_SECTION } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
@@ -42,6 +42,9 @@ export default function HowItWorksSection() {
   const { t, lang } = useLang();
   const reduceMotion = useReducedMotion();
   const [aw, setAw] = useState(0.62);
+  // Phones only: which of the two info panels is unfolded (null = both folded). From md up both are always shown.
+  const [panelInfo, setPanelInfo] = useState<"telemetri" | "fisika" | null>(null);
+  const togglePanel = (p: "telemetri" | "fisika") => setPanelInfo((cur) => (cur === p ? null : p));
   const [suhu, setSuhu] = useState(31);
   const [airMm, setAirMm] = useState(0); // 0 = dry, AIR_BEBAS_MM = free water present
   const [volumePakai, setVolumePakai] = useState(120);
@@ -496,12 +499,15 @@ export default function HowItWorksSection() {
               <b className="font-hiw-h2 font-semibold text-[#172B3A]">{t("Catatan Instrumen", "Instrument Note")}:</b> {catatan[status]}
             </p>
 
-            <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12">
-              <div className="min-w-0">
-                <h4 className="font-hiw-h2 text-xs font-semibold uppercase tracking-wider text-slate-600 md:text-sm">
-                  {t("Telemetri Sensor dan Akuisisi Data ESP32", "Sensor Telemetry and ESP32 Data Acquisition")}
-                </h4>
-                <dl className="mt-3 divide-y divide-slate-200 border-y border-slate-200 text-sm">
+            {/* Phones: two fold-out rows, one open at a time. md+: the two lists side by side, always open. */}
+            <div className="mt-8 grid grid-cols-1 border-b border-slate-200 md:grid-cols-2 md:gap-12 md:border-b-0">
+              <PanelInfo
+                id="telemetri"
+                title={t("Telemetri Sensor dan Akuisisi Data ESP32", "Sensor Telemetry and ESP32 Data Acquisition")}
+                open={panelInfo === "telemetri"}
+                onToggle={() => togglePanel("telemetri")}
+              >
+                <dl className="divide-y divide-slate-200 text-sm md:mt-3 md:border-y md:border-slate-200">
                   <Baris k={t("Aktivitas Air (a_w)", "Water Activity (a_w)")} v={fmt(aw, 2)} />
                   <Baris k={t("Suhu Bahan Bakar (T_bb)", "Fuel Temperature (T_bb)")} v={`${fmt(suhu, 0)} °C`} />
                   <Baris k="C_sat(T_bb)" v={`${Math.round(kejenuhan)} ppm`} />
@@ -514,12 +520,14 @@ export default function HowItWorksSection() {
                   <Baris k={t("Volume Pakai (V_pakai)", "Volume Used (V_pakai)")} v={`${fmt(volumePakai, 0)} L`} />
                   <Baris k={t("Status Katup & Log MicroSD", "Valve Status & MicroSD Log")} v={`${statusKatup}   ${t("TEREKAM CSV", "LOGGED CSV")}`} cls="text-[#9a3412]" />
                 </dl>
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-hiw-h2 text-xs font-semibold uppercase tracking-wider text-[#172B3A] md:text-sm">
-                  {t("Parameter Fisika Stratifikasi", "Stratification Physics Parameters")}
-                </h3>
-                <dl className="mt-3 divide-y divide-slate-200 border-y border-slate-200 text-sm">
+              </PanelInfo>
+              <PanelInfo
+                id="fisika"
+                title={t("Parameter Fisika Stratifikasi", "Stratification Physics Parameters")}
+                open={panelInfo === "fisika"}
+                onToggle={() => togglePanel("fisika")}
+              >
+                <dl className="divide-y divide-slate-200 text-sm md:mt-3 md:border-y md:border-slate-200">
                   <Baris k={t("Fasa Atas (Biosolar B50)", "Top Phase (B50 Biodiesel)")} v={`εr ≈ 2${t(",", ".")}8   ρ ≈ ${fmt(0.85, 2)} g/cm³`} />
                   <Baris k={t("Fasa Tengah (Air Bebas)", "Middle Phase (Free Water)")} v={`εr ≈ 80${t(",", ".")}1   ρ ≈ ${fmt(1, 2)} g/cm³`} cls="text-[#1d5fa0]" />
                   <Baris k={t("Fasa Dasar (Sludge/Emulsi)", "Bottom Phase (Sludge/Emulsion)")} v={`εr ≈ 38${t(",", ".")}0   ρ > ${fmt(1.05, 2)} g/cm³`} cls="text-[#9a3412]" />
@@ -528,7 +536,7 @@ export default function HowItWorksSection() {
                   <Baris k={t("Ambang Waspada Kadar Air", "Water Content Caution Threshold")} v={`ppm_est < ${AMBANG_WASPADA_PPM} ppm`} />
                   <Baris k={t("Kalibrasi Kurva C_sat", "C_sat Curve Calibration")} v={t("Uji lab Karl Fischer", "Karl Fischer lab test")} />
                 </dl>
-              </div>
+              </PanelInfo>
             </div>
 
             <p className="mt-6 text-xs text-slate-500">
@@ -541,6 +549,30 @@ export default function HowItWorksSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+// One info list. Below md its title is a button that folds the list open or shut; from md up the title is a plain
+// heading and the list is always visible.
+function PanelInfo({ id, title, open, onToggle, children }: { id: string; title: string; open: boolean; onToggle: () => void; children: ReactNode }) {
+  const isi = `panel-info-${id}`;
+  return (
+    <div className="min-w-0 border-t border-slate-200 md:border-t-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={isi}
+        className="flex w-full items-center justify-between gap-3 py-4 text-left md:hidden"
+      >
+        <h3 className="font-hiw-h2 text-xs font-semibold uppercase tracking-wider text-[#172B3A]">{title}</h3>
+        <ChevronDown className={cn("h-4 w-4 flex-none text-slate-500 transition-transform duration-300", open && "rotate-180")} aria-hidden />
+      </button>
+      <h3 className="hidden font-hiw-h2 text-sm font-semibold uppercase tracking-wider text-[#172B3A] md:block">{title}</h3>
+      <div id={isi} className={cn(open ? "block pb-2" : "hidden", "md:block md:pb-0")}>
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -560,10 +592,11 @@ function rich(text: string): ReactNode {
 
 function Baris({ k, v, cls }: { k: string; v: string; cls?: string }) {
   return (
-    // Narrow screens stack label over value; wider ones put them in two aligned columns, value right-aligned.
-    <div className="grid gap-0.5 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline sm:gap-x-6">
+    // Label left, value right-aligned on one line at every width, so a phone does not spend two lines per reading.
+    // A long value wraps inside its own column instead of pushing the label down.
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 py-2.5 sm:gap-x-6 sm:py-3">
       <dt className="text-sm text-slate-500 sm:text-base">{rich(k)}</dt>
-      <dd className={cn("text-base font-medium tabular-nums text-[#172B3A] sm:max-w-[16rem] sm:text-right sm:text-sm", cls)}>{rich(v)}</dd>
+      <dd className={cn("max-w-[11rem] text-right text-sm font-medium tabular-nums text-[#172B3A] sm:max-w-[16rem]", cls)}>{rich(v)}</dd>
     </div>
   );
 }

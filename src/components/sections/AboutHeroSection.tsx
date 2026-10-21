@@ -119,7 +119,7 @@ export default function AboutHeroSection() {
 
         <div className="relative w-full max-w-6xl">
           <FadeUp delay={0.1}>
-            <h1 className="bg-gradient-to-b from-white via-white/80 to-white/30 bg-clip-text text-[clamp(2.5rem,1rem+8vw,7.5rem)] font-extrabold uppercase leading-[0.95] tracking-tight text-transparent">
+            <h1 className="bg-gradient-to-b from-white via-white/80 to-white/30 bg-clip-text text-[clamp(1.5rem,8.5vw,7.5rem)] font-extrabold uppercase leading-[0.95] tracking-tight text-transparent">
               {t("Menghilangkan Titik Buta Genset", "Eliminating the Generator Blind Spot")}
             </h1>
           </FadeUp>

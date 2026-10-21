@@ -39,7 +39,7 @@ export default function TeamSection() {
                 className="absolute inset-0"
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
+                viewport={{ once: true, margin: "-100px 0px" }}
                 transition={{ duration: 0.7, ease: "easeOut" }}
               >
                 <Image src="/foto-tim.webp" alt={t("Tim TANGKIS", "TANGKIS team")} fill className="object-cover object-bottom" />
@@ -62,7 +62,7 @@ export default function TeamSection() {
                       className="flex flex-col items-center"
                       initial={{ opacity: 0, y: 40, scale: 0.7, rotate: tilt }}
                       whileInView={{ opacity: 1, y: 0, scale: 1, rotate: tilt / 4 }}
-                      viewport={{ once: true, margin: "-100px" }}
+                      viewport={{ once: true, margin: "-100px 0px" }}
                       transition={{ type: "spring", stiffness: 140, damping: 14, delay: 0.5 + i * STAGGER }}
                     >
                       <motion.div
@@ -71,7 +71,7 @@ export default function TeamSection() {
                         transition={{ duration: 4 + i * 0.5, repeat: Infinity, ease: "easeInOut" }}
                         whileHover={{ scale: 1.07, rotate: 0 }}
                       >
-                        <TeamLabel index={i + 1} name={m.name} role={m.role} major={t(m.bio)} compact />
+                        <TeamLabel name={m.name} role={m.role} major={t(m.bio)} compact />
                       </motion.div>
 
                       {/* dashed connector draws down, ending in a pulsing node on the head */}
@@ -79,14 +79,14 @@ export default function TeamSection() {
                         className="h-6 w-0 origin-top border-l-2 border-dashed border-brand-700"
                         initial={{ scaleY: 0 }}
                         whileInView={{ scaleY: 1 }}
-                        viewport={{ once: true, margin: "-100px" }}
+                        viewport={{ once: true, margin: "-100px 0px" }}
                         transition={{ duration: 0.4, delay: 0.8 + i * STAGGER, ease: "easeOut" }}
                       />
                       <motion.span
                         className="relative -mt-0.5 flex h-3 w-3"
                         initial={{ scale: 0 }}
                         whileInView={{ scale: 1 }}
-                        viewport={{ once: true, margin: "-100px" }}
+                        viewport={{ once: true, margin: "-100px 0px" }}
                         transition={{ type: "spring", delay: 1.1 + i * STAGGER }}
                       >
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-500 opacity-60" />
@@ -98,7 +98,8 @@ export default function TeamSection() {
               })}
             </div>
 
-            {/* < lg: numbered pins over each head; the list below uses the same numbers */}
+            {/* < lg: numbered pins over each head; the list below uses the same numbers. The in-view margins only trim
+                top and bottom: a sideways margin hid the pin nearest the edge (no. 5) on narrow phones. */}
             <div className="pointer-events-none lg:hidden">
               {team.map((m, i) => {
                 const pos = FACE_POSITION[m.id];
@@ -110,7 +111,7 @@ export default function TeamSection() {
                     style={{ left: `${pos.x}%`, top: `${pos.y - 24}%` }}
                     initial={{ opacity: 0, scale: 0 }}
                     whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true, margin: "-60px" }}
+                    viewport={{ once: true, margin: "-60px 0px" }}
                     transition={{ type: "spring", stiffness: 260, damping: 16, delay: 0.4 + i * 0.12 }}
                   >
                     {i + 1}
@@ -128,7 +129,7 @@ export default function TeamSection() {
                 className="flex items-center gap-4 py-4"
                 initial={{ opacity: 0, x: -24 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
+                viewport={{ once: true, margin: "-40px 0px" }}
                 transition={{ duration: 0.5, delay: 0.05, ease: "easeOut" }}
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-bold text-white">
@@ -148,11 +149,10 @@ export default function TeamSection() {
   );
 }
 
-function TeamLabel({ index, name, role, major, compact }: { index: number; name: string; role: string; major: string; compact?: boolean }) {
+function TeamLabel({ name, role, major, compact }: { name: string; role: string; major: string; compact?: boolean }) {
   return (
     <div className="text-center">
-      <span className="font-mono text-[10px] font-medium tracking-widest text-brand-700/70">{String(index).padStart(2, "0")}</span>
-      <p className={cn("mt-0.5 font-bold leading-tight text-brand-950", compact ? "text-[13px] xl:text-base" : "text-base")}>{name}</p>
+      <p className={cn("font-bold leading-tight text-brand-950", compact ? "text-[13px] xl:text-base" : "text-base")}>{name}</p>
       <p className={cn("mt-1 font-semibold leading-tight text-brand-700", compact ? "text-[11px] xl:text-[13px]" : "text-sm")}>{role}</p>
       <p className={cn("mt-1 leading-tight text-slate-500", compact ? "text-[11px] xl:text-xs" : "text-xs")}>{major}</p>
     </div>
