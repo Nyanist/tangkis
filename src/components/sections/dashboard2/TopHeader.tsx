@@ -1,38 +1,60 @@
+"use client";
 import { SlidersHorizontal, Clock, UserCircle2 } from "lucide-react";
-import { TANGGAL_PEMBARUAN } from "@/lib/data/dashboard";
-import { PROVINSI_OPTIONS } from "@/lib/data/dashboard2";
+import { PERUSAHAAN, WILAYAH, type Wilayah } from "@/lib/data/dashboard2";
+import { useLang } from "@/lib/i18n";
+import { useNow } from "@/lib/useNow";
 
-// ponytail: the province select and "Global Filter" button stay decorative
-// (matches the reference layout) — "Pilih Site" now lives under Bottleneck Site.
-export default function TopHeader() {
+// The company scope select filters the whole page by region. The "Filter Global" button stays decorative.
+export default function TopHeader({ wilayah, onWilayahChange }: { wilayah: Wilayah | ""; onWilayahChange: (w: Wilayah | "") => void }) {
+  const { t } = useLang();
+  const now = useNow();
   return (
-    <header className="mb-4 flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <h1 className="text-2xl font-extrabold tracking-wide text-brand-950">TANGKIS</h1>
-        <p className="text-sm text-[#5A6B7B]">Pemantauan Kesiapan Bahan Bakar Genset Cadangan</p>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <select className="rounded-md border border-brand-100 bg-white px-3 py-1.5 text-sm" defaultValue={PROVINSI_OPTIONS[0]}>
-            {PROVINSI_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+    <header className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-4">
+      <div className="min-w-0">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-extrabold tracking-wide text-brand-950">TANGKIS</h1>
+            <p className="text-sm text-neutral-900">{t("Pemantauan Kesiapan Bahan Bakar Genset Cadangan", "Backup Generator Fuel Readiness Monitoring")}</p>
+          </div>
+          <Profil className="lg:hidden" />
+        </div>
+        <div className="mt-3 flex items-center gap-2">
+          <select
+            value={wilayah}
+            onChange={(e) => onWilayahChange(e.target.value as Wilayah | "")}
+            className="min-w-0 flex-1 rounded-md border border-brand-100 bg-white px-3 py-1.5 text-sm sm:flex-none"
+            aria-label={t("Cakupan perusahaan", "Company scope")}
+          >
+            <option value="">{PERUSAHAAN} ({t("Nasional", "National")})</option>
+            {WILAYAH.map((w) => <option key={w} value={w}>{PERUSAHAAN} ({w})</option>)}
           </select>
-          <button type="button" className="inline-flex items-center gap-1.5 rounded-md border border-brand-100 bg-white px-3 py-1.5 text-sm font-semibold text-brand-700 hover:bg-brand-50">
+          <button type="button" className="inline-flex flex-none items-center gap-1.5 rounded-md border border-brand-100 bg-white px-3 py-1.5 text-sm font-semibold text-brand-700 hover:bg-brand-50">
             <SlidersHorizontal className="h-3.5 w-3.5" />
-            Global Filter
+            {t("Filter Global", "Global Filter")}
           </button>
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-brand-100 bg-white px-3 py-1.5 text-xs font-medium text-[#5A6B7B]">
+      <div className="flex items-center gap-3">
+        <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-brand-100 bg-white px-3 py-1.5 text-xs font-medium text-neutral-900">
           <Clock className="h-3.5 w-3.5 flex-none text-brand-700" />
-          <span className="hidden sm:inline">Update Data Otomatis:</span> <span className="font-semibold text-[#172B3A]">{TANGGAL_PEMBARUAN}</span>
+          <span className="hidden sm:inline">{t("Update Data Otomatis:", "Auto Data Update:")}</span> <time className="min-w-[11.5rem] font-semibold tabular-nums text-neutral-900">{now ?? " "}</time>
         </span>
-        <span className="flex items-center gap-2 text-sm">
-          <UserCircle2 className="h-8 w-8 text-brand-700" />
-          <span className="leading-tight">
-            <span className="block font-semibold text-[#172B3A]">Admin Darurat</span>
-            <span className="block text-xs text-[#5A6B7B]">Profile</span>
-          </span>
-        </span>
+        <Profil className="hidden lg:flex" />
       </div>
     </header>
+  );
+}
+
+// Signed-in user chip. Phones show it beside the title, desktop at the end of the right column.
+function Profil({ className }: { className?: string }) {
+  const { t } = useLang();
+  return (
+    <span className={`flex flex-none items-center gap-2 text-sm ${className ?? ""}`}>
+      <UserCircle2 className="h-8 w-8 text-brand-700" />
+      <span className="leading-tight">
+        <span className="block font-semibold text-neutral-900">{t("Admin Darurat", "Emergency Admin")}</span>
+        <span className="block text-xs text-neutral-900">{t("Profil", "Profile")}</span>
+      </span>
+    </span>
   );
 }

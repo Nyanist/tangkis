@@ -1,114 +1,97 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import SectionBadge from "@/components/sections/SectionBadge";
-import FadeUp from "@/components/motion/FadeUp";
+import { useRef, useState } from "react";
+import Image from "next/image";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import ScrollHint from "@/components/motion/ScrollHint";
 import { problems } from "@/lib/data/problems";
 import { cn, KONTEN_SECTION } from "@/lib/utils";
+import { useLang } from "@/lib/i18n";
 
-type Problem = (typeof problems)[number];
-
-function ProblemCard({ p }: { p: Problem }) {
-  return (
-    <div
-      className="relative flex min-h-[24rem] h-fill flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-6 pb-8 text-[#f0f0f0] shadow-[inset_0_0_2.5rem_rgba(35,41,42,0.65)] lg:min-h-[min(500px,50vh)]"
-      style={{ backgroundImage: `url(${p.image})` }}
-    >
-      <p.icon className="relative h-14 w-14" strokeWidth={1.5} aria-hidden />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-      <div className="relative">
-        <h3 className="text-xl font-semibold">{p.title}</h3>
-        <p className="mt-2 text-sm text-slate-200">{p.description}</p>
-      </div>
-    </div>
-  );
-}
-
-// Scroll timeline while the section is pinned (progress 0..1 spans PIN_VH of scrolling):
-// empty -> scroll -> card 1 -> scroll -> card 2 -> scroll -> card 3 -> hold -> release.
-// Everything is measured in scroll distance, not screen position: each card slides in over CARD_SPAN of the
-// timeline (CARD_SPAN * PIN_VH of scrolling), and cards begin CARD_STEP apart, leaving a scroll gap between them.
-const PIN_VH = 300;
-const CARD_START = 0;
-const CARD_STEP = 0.3;
-const CARD_SPAN = 0.2;
-
-function RevealCard({ p, i, progress }: { p: Problem; i: number; progress: MotionValue<number> }) {
-  const start = CARD_START + i * CARD_STEP;
-  const range = [start, start + CARD_SPAN];
-  // No fade: the card slides up from below the screen and then stays stuck in place.
-  const y = useTransform(progress, range, ["100vh", "0vh"]);
-  return (
-    <motion.div style={{ y }} className="lg:flex-1">
-      <ProblemCard p={p} />
-    </motion.div>
-  );
-}
+// Full-screen story: the section is (n + 1) screens tall and its content is pinned, so scrolling is what advances it.
+// Each problem gets its own stretch of scroll, with the photo, counter, title and text swapping at the boundaries.
+const N = problems.length;
+const pad = (n: number) => String(n).padStart(2, "0");
 
 export default function ProblemSection() {
+  const { t } = useLang();
   const ref = useRef<HTMLElement>(null);
-  const reduceMotion = useReducedMotion();
-  const [desktop, setDesktop] = useState(false); // false on first render so SSR/hydration match
+  const [active, setActive] = useState(0);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const update = () => setDesktop(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
 
-  // Pin + scroll-driven reveal only on desktop; smaller screens and reduced motion get a static stack.
-  const pinned = desktop && !reduceMotion;
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setActive(Math.max(0, Math.min(N - 1, Math.floor(v * N))));
+  });
+
+  // Jump to a problem by scrolling to the middle of its stretch.
+  const goTo = (i: number) => {
+    const el = ref.current;
+    if (!el) return;
+    const start = el.getBoundingClientRect().top + window.scrollY;
+    const range = el.offsetHeight - window.innerHeight;
+    window.scrollTo({ top: start + ((i + 0.5) / N) * range, behavior: "smooth" });
+  };
+
+  const p = problems[active];
 
   return (
-    <section
-      ref={ref}
-      id="masalah"
-      className={cn("relative scroll-mt-24 bg-[#f0f0f0]", !pinned && "py-16 lg:py-24")}
-      style={pinned ? { height: `${100 + PIN_VH}vh` } : undefined}
-    >
-      {/* Full-bleed background, independent of KONTEN_SECTION's max-width. Sticky while pinned
-          so it stays put as the pinned content scrolls through card reveals. */}
-      <div
-        className={cn("bg-cover bg-center", pinned ? "sticky top-0 inset-x-0 h-screen" : "absolute inset-0")}
-        style={{ backgroundImage: "url(/masalah-and-further.webp)" }}
-      >
-        <div className="absolute inset-0 bg-black/55" />
-      </div>
+    <section ref={ref} id="masalah" className="relative bg-brand-950 text-[#f0f0f0]" style={{ height: `${(N + 1) * 100}vh` }}>
+      <div className="sticky top-0 h-screen overflow-hidden">
+        {/* Photos crossfade; a green-tinted scrim keeps the text readable and the section on palette. */}
+        {problems.map((x, i) => (
+          <motion.div
+            key={x.id}
+            aria-hidden="true"
+            className="absolute inset-0"
+            initial={false}
+            animate={{ opacity: i === active ? 1 : 0, scale: i === active ? 1 : 1.06 }}
+            transition={{ duration: 0.9, ease: "easeInOut" }}
+          >
+            <Image src={x.image} alt="" fill sizes="100vw" priority={i === 0} className="object-cover object-right" />
+          </motion.div>
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-950/95 via-brand-950/65 to-brand-950/20" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-950/80 via-transparent to-brand-950/40" aria-hidden="true" />
 
-      <div
-        className={cn(
-          KONTEN_SECTION,
-          "relative z-10 text-[#f0f0f0]",
-          pinned && "-mt-[100vh] sticky top-0 flex h-screen flex-col justify-center pb-6 pt-24"
-        )}
-      >
-        {/* Heading is plain (no fade) while pinned; the static layout keeps the usual scroll-in. */}
-        {(() => {
-          const heading = (
-            <>
-              <SectionBadge number="04" label="Masalah" dark />
-              <h2 className="mt-6 max-w-3xl text-3xl font-bold md:text-5xl">Masalah yang Kami Selesaikan</h2>
-            </>
-          );
-          return pinned ? <div>{heading}</div> : <FadeUp>{heading}</FadeUp>;
-        })()}
-        <div className="mt-10 flex flex-col gap-4 lg:flex-row">
-          {problems.map((p, i) =>
-            pinned ? (
-              <RevealCard key={p.id} p={p} i={i} progress={scrollYProgress} />
-            ) : (
-              <FadeUp key={p.id} delay={i * 0.1} className="lg:flex-1">
-                <ProblemCard p={p} />
-              </FadeUp>
-            )
-          )}
+        <div className={cn(KONTEN_SECTION, "relative z-10 flex h-full flex-col pb-24 pt-28 lg:pl-12 xl:pl-24 2xl:pl-40")}>
+          <div className="flex flex-1 flex-col justify-center">
+            <p className="font-mono text-sm tracking-[0.35em] text-white/60" aria-hidden="true">
+              {pad(active + 1)} <span className="px-1">/</span> {pad(N)}
+            </p>
+
+            <div aria-live="polite" className="mt-8 min-h-[16rem] max-w-2xl sm:min-h-[18rem]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 28 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -18 }}
+                  transition={{ duration: 0.45, ease: "easeOut" }}
+                >
+                  <h2 className="text-4xl font-bold leading-[1.05] tracking-[-0.03em] sm:text-5xl lg:text-6xl">{t(p.title)}</h2>
+                  <p className="mt-6 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg lg:text-xl">{t(p.description)}</p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+          </div>
+
+          {/* Side dots */}
+          <div className="absolute right-5 top-1/2 flex -translate-y-1/2 flex-col gap-3 md:right-8" role="tablist" aria-label={t("Masalah", "Problem")}>
+            {problems.map((x, i) => (
+              <button
+                key={x.id}
+                type="button"
+                role="tab"
+                aria-selected={i === active}
+                aria-label={t(x.title)}
+                onClick={() => goTo(i)}
+                className={cn("h-2.5 w-2.5 rounded-full transition-all duration-300", i === active ? "scale-125 bg-white" : "bg-white/35 hover:bg-white/70")}
+              />
+            ))}
+          </div>
+
+          <ScrollHint dark={false} className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 md:block" />
         </div>
-        {pinned && (
-          <ScrollHint dark={false} className="absolute bottom-12 right-8 md:right-10" />
-        )}
       </div>
     </section>
   );

@@ -1,7 +1,8 @@
 "use client";
-import { TANGGAL_PEMBARUAN } from "@/lib/data/dashboard";
+import { useNow } from "@/lib/useNow";
 
 export default function DashboardTopbar() {
+  const now = useNow();
   return (
     <header className="mb-4 flex flex-wrap items-end justify-between gap-4 border-b border-brand-100 pb-3">
       <div>
@@ -16,7 +17,7 @@ export default function DashboardTopbar() {
           SISTEM ONLINE
         </span>
         <p className="text-sm text-[#5A6B7B]">
-          Pembaruan terakhir: <time className="font-semibold text-[#172B3A]">{TANGGAL_PEMBARUAN}</time>
+          Pembaruan terakhir: <time className="font-semibold tabular-nums text-[#172B3A]">{now ?? " "}</time>
         </p>
       </div>
     </header>

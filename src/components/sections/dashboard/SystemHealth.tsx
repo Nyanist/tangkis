@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { STATUS_SISTEM } from "@/lib/data/dashboard";
 import { cn, IKON_KESEHATAN } from "@/lib/utils";
+import { useLang } from "@/lib/i18n";
+import { DATA_EN, STATUS_EN } from "@/lib/data/dashboardI18n";
 
 const gayaStatus: Record<string, string> = {
   AKTIF: "text-[#1F6B42]",
@@ -13,11 +15,14 @@ const gayaStatus: Record<string, string> = {
 // Compact row: icon only, tinted by status so it still reads at a glance with no
 // label. Expanded panel: full name + status text + LED, one per row.
 function StatusItem({ s, full }: { s: (typeof STATUS_SISTEM)[number]; full: boolean }) {
+  const { t } = useLang();
+  const nama = t(s.nama, DATA_EN[s.nama]);
+  const status = t(s.status, STATUS_EN[s.status]);
   const Ikon = IKON_KESEHATAN[s.ikon] ?? IKON_KESEHATAN.pantau;
 
   if (!full) {
     return (
-      <span title={`${s.nama}: ${s.status}`} className="flex-none">
+      <span title={`${nama}: ${status}`} className="flex-none">
         <Ikon className={cn("h-4 w-4", gayaStatus[s.status])} />
       </span>
     );
@@ -27,7 +32,7 @@ function StatusItem({ s, full }: { s: (typeof STATUS_SISTEM)[number]; full: bool
     <>
       <span className="flex items-center gap-1.5 text-xs">
         <Ikon className="h-3.5 w-3.5 flex-none text-brand-700" />
-        <span className="text-[#5A6B7B]">{s.nama}</span>
+        <span className="text-neutral-900">{nama}</span>
       </span>
       <span className={cn("inline-flex items-center gap-1 justify-self-end text-xs font-bold tracking-wider", gayaStatus[s.status])}>
         {s.status === "AKTIF" ? (
@@ -37,7 +42,7 @@ function StatusItem({ s, full }: { s: (typeof STATUS_SISTEM)[number]; full: bool
         ) : (
           <span className="h-2 w-2 rounded-full bg-[#D64545]" aria-hidden="true" />
         )}
-        {s.status}
+        {status}
       </span>
     </>
   );
@@ -53,6 +58,7 @@ function StatusItem({ s, full }: { s: (typeof STATUS_SISTEM)[number]; full: bool
 // auto-expand — since that was tied to the section's own height and caused a
 // feedback loop right at the bottom of the page.
 export default function SystemHealth() {
+  const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
@@ -80,7 +86,7 @@ export default function SystemHealth() {
         aria-expanded={expanded}
         className="flex w-full items-center gap-3 px-4 py-2.5"
       >
-        <h2 id="judul-sistem" className="text-sm font-semibold text-brand-950">Kesehatan Sistem</h2>
+        <h2 id="judul-sistem" className="text-sm font-semibold text-brand-950">{t("Kesehatan Sistem", "System Health")}</h2>
         <div className="flex flex-1 items-center justify-evenly">
           {STATUS_SISTEM.map((s) => (
             <StatusItem key={s.nama} s={s} full={false} />

@@ -15,7 +15,7 @@ export default function ProfilLokasiPanel({
 }) {
   const [showKirim, setShowKirim] = useState(false);
   const profil = PROFIL_LOKASI[lokasi];
-  const daftarTangki = TANGKI.filter((t) => t.lokasi.split(" — ")[0] === lokasi);
+  const daftarTangki = TANGKI.filter((t) => t.lokasi.split(", ")[0] === lokasi);
 
   return (
     <aside aria-labelledby="judul-profil" className="rounded-lg border border-brand-100 bg-white p-4 md:p-5">
