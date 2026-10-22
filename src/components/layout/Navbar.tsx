@@ -7,18 +7,21 @@ import { Menu, X, Home, Info, LayoutDashboard, LogIn, HelpCircle } from "lucide-
 import { cn } from "@/lib/utils";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { product } from "@/lib/data/product";
+import { useLang } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 const links = [
-  { href: "/", label: "Beranda", icon: Home },
-  { href: "/about", label: "Tentang Kami", icon: Info },
-  { href: "/dashboard", label: "Demo Dashboard", icon: LayoutDashboard },
-  { href: "/faq", label: "FAQ", icon: HelpCircle },
+  { href: "/", label: { id: "Beranda", en: "Home" }, icon: Home },
+  { href: "/about", label: { id: "Tentang Kami", en: "About Us" }, icon: Info },
+  { href: "/dashboard", label: { id: "Demo Dashboard", en: "Dashboard Demo" }, icon: LayoutDashboard },
+  { href: "/faq", label: { id: "FAQ", en: "FAQ" }, icon: HelpCircle },
 ];
 
 // Flip to false and save to hide the navbar on /dashboard* pages. Code-only switch, no UI control.
 const SHOW_ON_DASHBOARD = true;
 
 export default function Navbar() {
+  const { t } = useLang();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -71,7 +74,7 @@ export default function Navbar() {
         {/* shrink-0 + a smaller logo below lg: w-auto can't compress, so at 1024–1150px
             the nav's min-content width used to exceed the viewport and clip the logo. */}
         <Link href="/" className="flex shrink-0 items-center">
-          <Image src="/logo-txt-hijau.webp" alt={product.name} width={180} height={40} className="h-8 w-auto lg:h-10" priority />
+          <Image src="/logo-txt-hijau.webp" alt={product.name} width={120} height={40} className="h-8 w-auto lg:h-10" priority />
         </Link>
         {/* Border frames in, then a brand-color block fills down from the top —
             hover-only, fades back out completely once the pointer leaves. */}
@@ -92,7 +95,7 @@ export default function Navbar() {
                     engaged && "text-white"
                   )}
                 >
-                  {l.label}
+                  {t(l.label)}
                 </span>
                 <span
                   className={cn(
@@ -112,20 +115,24 @@ export default function Navbar() {
             );
           })}
         </div>
-        <Link
-          href="/login"
-          className="hidden shrink-0 rounded-full bg-[#f0f0f0] px-5 py-2 text-sm font-semibold text-brand-950 hover:bg-brand-100 md:block"
-        >
-          Login
-        </Link>
+        <div className="hidden shrink-0 items-center gap-2 md:flex">
+          <LanguageSwitcher />
+          <Link
+            href="/login"
+            className="rounded-full bg-[#f0f0f0] px-5 py-2 text-sm font-semibold text-brand-950 hover:bg-brand-100"
+          >
+            Login
+          </Link>
+        </div>
 
         {/* ponytail: compact dropdown, no focus trap — Sheet if the menu ever needs one */}
-        <div ref={menuRef} className="md:hidden">
+        <div ref={menuRef} className="flex items-center gap-1 md:hidden">
+          <LanguageSwitcher />
           <button
             type="button"
             className="rounded p-2 text-[#f0f0f0] hover:bg-white/10"
             onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
+            aria-label={t("Buka/tutup menu", "Toggle menu")}
             aria-expanded={open}
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -143,7 +150,7 @@ export default function Navbar() {
                   )}
                 >
                   <l.icon className="h-4 w-4" aria-hidden />
-                  {l.label}
+                  {t(l.label)}
                 </Link>
               ))}
               <Link

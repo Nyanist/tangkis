@@ -1,20 +1,18 @@
 "use client";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Mail } from "lucide-react";
 import { product } from "@/lib/data/product";
 import { cn } from "@/lib/utils";
-import MagnetButton from "@/components/motion/MagnetButton";
+import { useLang } from "@/lib/i18n";
+import { EMAIL_TANGKIS, mailtoTangkis } from "@/lib/mailto";
+import HalftoneWordmarkFooter from "@/components/ui/halftone-wordmark-footer";
 
 // ponytail: lucide-react dropped brand/logo icons (trademark policy) — hand-rolled
 // minimal marks instead of pulling in a whole icon pack for two glyphs.
-function LinkedinMark(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.064 2.064 0 1 1 0-4.128 2.064 2.064 0 0 1 0 4.128zM7.119 20.452H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-    </svg>
-  );
-}
 function InstagramMark(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
@@ -23,72 +21,87 @@ function InstagramMark(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-// Pages that already have their own CTA/contact block right above the footer
-// don't need this one repeated — Tentang Kami ends on ContactWithGlobe.
+// Every page ends on the "Hubungi Kami" contact block (globe + form). Tentang Kami renders it itself
+// right above the footer, so the footer must not repeat it there.
+// d3 + topojson only run client-side, so keep that weight out of the initial bundle.
+const ContactWithGlobe = dynamic(() => import("@/components/ui/contact-with-globe"), { ssr: false });
 const HIDE_CTA_ON = ["/about"];
+
+// Every page ends on the halftone wordmark footer (dots spelling "tangkis"), under the contact block.
+function HomeFooter({ showCta }: { showCta: boolean }) {
+  const { t, lang } = useLang();
+  // The wordmark is painted on a canvas, which can't read CSS variables, so take the page's already-loaded face by its
+  // real (hashed) family name.
+  const [face, setFace] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    setFace(getComputedStyle(document.body).fontFamily);
+  }, []);
+
+  return (
+    <footer className="overflow-hidden bg-brand-950 text-[#f0f0f0]">
+      {showCta && (
+        <div className="mx-auto max-w-[1800px] px-6 pt-20 lg:px-12 lg:pt-28">
+          <ContactWithGlobe />
+        </div>
+      )}
+      <div className={cn("border-t border-white/10", showCta ? "mt-16" : "mt-0")}>
+        <HalftoneWordmarkFooter
+          wordmark="tangkis"
+          brand={
+            <div>
+              <Link href="/" aria-label={product.name} className="inline-block">
+                <Image src="/logo-horizontal-2.png" alt={product.name} width={1669} height={411} className="h-9 w-auto md:h-11" />
+              </Link>
+              <p className="mt-5 max-w-xs opacity-60">{t(product.tagline)}</p>
+              <p className="mt-4 text-sm opacity-60">© 2026 Tangkis. {t("Hak Cipta Dilindungi.", "All rights reserved.")}</p>
+            </div>
+          }
+          columns={[
+            {
+              title: t("Navigasi", "Navigation"),
+              links: [
+                { label: t("Beranda", "Home"), href: "/" },
+                { label: t("Tentang Kami", "About Us"), href: "/about" },
+                { label: t("Demo Dashboard", "Dashboard Demo"), href: "/dashboard" },
+                { label: "FAQ", href: "/faq" },
+              ],
+            },
+            {
+              title: t("Legal", "Legal"),
+              links: [
+                { label: t("Syarat & Ketentuan", "Terms & Conditions") },
+                { label: t("Kebijakan Privasi", "Privacy Policy") },
+              ],
+            },
+            {
+              title: t("Sosial", "Social"),
+              links: [
+                { label: "Instagram", href: "https://instagram.com/tangkis.tech", icon: <InstagramMark className="h-4 w-4" /> },
+                { label: "Email", href: mailtoTangkis(lang), icon: <Mail className="h-4 w-4" /> },
+              ],
+            },
+            {
+              title: t("Kontak", "Contact"),
+              links: [
+                { label: EMAIL_TANGKIS, href: mailtoTangkis(lang) },
+                { label: "0895807022422", href: "tel:+62895807022422" },
+              ],
+            },
+          ]}
+          backToTopLabel={t("Kembali ke atas ↑", "Back to top ↑")}
+          palette={{ background: "#12260a", ink: "#d9ead3", warm: "#6aa84f" }}
+          fontFamily={face}
+          fontWeight={800}
+          height="clamp(380px, 46vw, 620px)"
+          className="max-md:!h-[700px]"
+        />
+      </div>
+    </footer>
+  );
+}
 
 export default function Footer() {
   const pathname = usePathname();
   if (pathname === "/login") return null;
-  const showCta = !HIDE_CTA_ON.includes(pathname);
-
-  return (
-    <footer className="overflow-hidden bg-brand-950 text-[#f0f0f0]">
-      <div className={cn("mx-auto max-w-[1800px] px-6 lg:px-12", showCta ? "pt-24 lg:pt-40" : "pt-16 lg:pt-20")}>
-        {showCta && (
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-            <div>
-              <h2 className="text-4xl font-extrabold leading-tight md:text-6xl">{product.tagline}</h2>
-              <p className="mt-6 max-w-xl font-description text-slate-400">{product.description}</p>
-            </div>
-            <div className="flex justify-center lg:justify-end">
-              <MagnetButton href="/about" label="Tentang Kami" />
-            </div>
-          </div>
-        )}
-
-        <div className={cn("grid gap-8 border-t border-white/10 py-10 md:grid-cols-3", showCta && "mt-20")}>
-          <div>
-            <p className="text-lg font-extrabold tracking-widest">{product.name}</p>
-            <p className="mt-2 text-sm text-slate-400">{product.tagline}</p>
-          </div>
-          <div>
-            <p className="text-sm font-semibold">Navigasi</p>
-            <div className="mt-2 flex flex-col gap-1 text-sm text-slate-400">
-              <Link href="/" className="hover:text-[#f0f0f0]">Beranda</Link>
-              <Link href="/about" className="hover:text-[#f0f0f0]">Tentang Kami</Link>
-              <Link href="/dashboard" className="hover:text-[#f0f0f0]">Demo Dashboard</Link>
-              <Link href="/faq" className="hover:text-[#f0f0f0]">FAQ</Link>
-            </div>
-          </div>
-          <div>
-            <p className="text-sm font-semibold">Connect</p>
-            <p className="mt-2 text-sm text-slate-400">
-              tangkis.tech@gmail.com
-            </p>
-            {/* ponytail: LinkedIn/Instagram are decorative placeholders — no real accounts to link yet */}
-            <div className="mt-3 flex items-center gap-4">
-              <Link href="#" aria-label="LinkedIn" className="text-slate-400 hover:text-[#f0f0f0]">
-                <LinkedinMark className="h-5 w-5" />
-              </Link>
-              <Link href="https://instagram.com/tangkis.tech" aria-label="Instagram" className="text-slate-400 hover:text-[#f0f0f0]">
-                <InstagramMark className="h-5 w-5" />
-              </Link>
-              <Link href="mailto:tangkis.tech@gmail.com" aria-label="Email" className="text-slate-400 hover:text-[#f0f0f0]">
-                <Mail className="h-5 w-5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col items-center justify-center gap-2 border-t border-white/10 py-4 text-center text-xs text-slate-500 sm:flex-row sm:gap-4">
-        <span>© 2026 {product.name}. Hak Cipta Dilindungi</span>
-        <span className="flex items-center gap-4">
-          <Link href="#" className="hover:text-[#f0f0f0]">Syarat & Ketentuan</Link>
-          <Link href="#" className="hover:text-[#f0f0f0]">Kebijakan Privasi</Link>
-        </span>
-      </div>
-    </footer>
-  );
+  return <HomeFooter showCta={!HIDE_CTA_ON.includes(pathname)} />;
 }

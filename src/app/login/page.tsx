@@ -2,12 +2,15 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, ArrowLeft } from "lucide-react";
 import { product } from "@/lib/data/product";
 import { GlassFold } from "@/components/ui/glass-fold";
+import { useLang } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
-// ponytail: static UI only — no auth wiring, form just prevents default. Hook up
-// to a real auth flow when there's a backend to call.
+// Demo login: there is no backend, so signing in (form or Google) just opens the demo dashboard.
+// Hook up to a real auth flow when there's a backend to call.
 function GoogleMark(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" {...props}>
@@ -19,31 +22,41 @@ function GoogleMark(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-// "Pastikan ... Anda dengan TANGKIS" → everything before "dengan", so the headline
-// can break there and highlight the brand name.
-const taglineLead = product.tagline.replace(new RegExp(`\\s*dengan\\s+${product.name}\\s*$`), "");
+// "Pastikan ... Anda dengan TANGKIS" / "Make Sure ... with TANGKIS" → everything before the
+// connector word, so the headline can break there and highlight the brand name.
+const splitTagline = (tagline: string, connector: string) =>
+  tagline.replace(new RegExp(`\\s*${connector}\\s+${product.name}\\s*$`), "");
 
 export default function LoginPage() {
+  const { lang, t } = useLang();
+  const connector = lang === "id" ? "dengan" : "with";
+  const taglineLead = splitTagline(t(product.tagline), connector);
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const masuk = () => router.push("/dashboard");
 
   return (
     <main className="grid min-h-screen lg:grid-cols-[60fr_40fr]">
       {/* Form panel */}
-      <div className="flex flex-col justify-center px-6 py-12 sm:px-12 md:px-16 lg:order-2 lg:px-20">
+      <div className="relative flex flex-col justify-center px-6 py-12 sm:px-12 md:px-16 lg:order-2 lg:px-20">
+        <LanguageSwitcher tone="light" className="absolute right-4 top-4 sm:right-8 sm:top-6" />
         <div className="mx-auto w-full max-w-sm">
           <Link href="/" className="mb-10 flex items-center gap-2 text-sm font-medium text-[#5A6B7B] hover:text-brand-800">
             <ArrowLeft className="h-4 w-4" />
-            Kembali ke Beranda
+            {t("Kembali ke Beranda", "Back to Home")}
           </Link>
 
-          <Image src="/logo-full-hijau.webp" alt={product.name} width={160} height={40} className="mb-8 h-9 w-auto" priority />
+          <Image src="/logo-full-hijau.webp" alt={product.name} width={55} height={40} className="mb-8 h-9 w-auto" priority />
 
-          <h1 className="text-3xl font-bold text-brand-950">Selamat Datang Kembali</h1>
+          <h1 className="text-3xl font-bold text-brand-950">{t("Selamat Datang Kembali", "Welcome Back")}</h1>
           <p className="mt-2 font-description text-sm text-[#5A6B7B]">
-            Masuk untuk memantau kesiapan bahan bakar genset Anda.
+            {t("Masuk untuk memantau kesiapan bahan bakar genset Anda.", "Sign in to monitor the fuel readiness of your generators.")}
           </p>
 
-          <form className="mt-8 space-y-5" onSubmit={(e) => e.preventDefault()}>
+          <form className="mt-8 space-y-5" onSubmit={(e) => {
+            e.preventDefault();
+            masuk();
+          }}>
             <div>
               <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-brand-950">
                 Email
@@ -54,7 +67,7 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="nama@perusahaan.com"
+                  placeholder={t("nama@perusahaan.com", "name@company.com")}
                   className="w-full rounded-lg border border-brand-100 bg-white py-2.5 pl-11 pr-3.5 text-sm outline-none transition-colors focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                 />
               </div>
@@ -62,7 +75,7 @@ export default function LoginPage() {
 
             <div>
               <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-brand-950">
-                Kata Sandi
+                {t("Kata Sandi", "Password")}
               </label>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#5A6B7B]" />
@@ -76,7 +89,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                  aria-label={showPassword ? t("Sembunyikan kata sandi", "Hide password") : t("Tampilkan kata sandi", "Show password")}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#5A6B7B] hover:text-brand-800"
                 >
                   {showPassword ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
@@ -87,10 +100,10 @@ export default function LoginPage() {
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-[#5A6B7B]">
                 <input type="checkbox" className="h-4 w-4 rounded border-brand-100 text-brand-700 focus:ring-brand-500/30" />
-                Ingat saya
+                {t("Ingat saya", "Remember me")}
               </label>
               <Link href="#" className="font-semibold text-brand-700 hover:text-brand-800">
-                Lupa kata sandi?
+                {t("Lupa kata sandi?", "Forgot password?")}
               </Link>
             </div>
 
@@ -98,28 +111,29 @@ export default function LoginPage() {
               type="submit"
               className="w-full rounded-lg bg-brand-700 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800"
             >
-              Masuk
+              {t("Masuk", "Sign In")}
             </button>
           </form>
 
           <div className="my-6 flex items-center gap-3 text-xs text-[#5A6B7B]">
             <span className="h-px flex-1 bg-brand-100" />
-            Atau lanjutkan dengan
+            {t("Atau lanjutkan dengan", "Or continue with")}
             <span className="h-px flex-1 bg-brand-100" />
           </div>
 
           <button
             type="button"
+            onClick={masuk}
             className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-brand-100 bg-white py-2.5 text-sm font-semibold text-brand-950 transition-colors hover:bg-brand-50"
           >
             <GoogleMark className="h-[18px] w-[18px]" />
-            Masuk dengan Google
+            {t("Masuk dengan Google", "Sign in with Google")}
           </button>
 
           <p className="mt-8 text-center text-sm text-[#5A6B7B]">
-            Belum punya akun?{" "}
+            {t("Belum punya akun?", "Don't have an account?")}{" "}
             <Link href="#" className="font-semibold text-brand-700 hover:text-brand-800">
-              Daftar
+              {t("Daftar", "Sign Up")}
             </Link>
           </p>
         </div>
@@ -133,16 +147,16 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-brand-950/85 via-brand-950/55 to-brand-950/10" aria-hidden="true" />
 
         <div className="relative flex h-full flex-col justify-center px-16 text-[#f0f0f0] xl:px-20">
-          {/* Break before "dengan" so the brand name lands as the punchline, not an orphan. */}
+          {/* Break before the connector word so the brand name lands as the punchline, not an orphan. */}
           <h2 className="max-w-xl font-heading text-5xl font-bold leading-[1.05] tracking-tight text-balance xl:text-6xl">
             {taglineLead}
             <br />
-            dengan <span className="text-brand-300">{product.name}</span>
+            {connector} <span className="text-brand-300">{product.name}</span>
           </h2>
 
           {/* Soft dark shadow lifts the copy off the shader's bright folds. */}
           <p className="mt-6 max-w-md font-description text-base font-medium leading-relaxed text-white/95 [text-shadow:0_1px_14px_rgba(18,38,10,0.85)]">
-            {product.description}
+            {t(product.description)}
           </p>
         </div>
       </div>

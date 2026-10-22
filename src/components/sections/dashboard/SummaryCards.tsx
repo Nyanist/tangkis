@@ -6,7 +6,7 @@ import { cn, computeStatusCounts } from "@/lib/utils";
 export default function SummaryCards() {
   const total = TANGKI.length;
   const { hijau, kuning, merah } = computeStatusCounts(TANGKI);
-  const lokasi = new Set(TANGKI.map((t) => t.lokasi.split(" — ")[0])).size;
+  const lokasi = new Set(TANGKI.map((t) => t.lokasi.split(", ")[0])).size;
 
   const segmen = [
     { label: "Total Tangki", value: total, micro: `di ${lokasi} lokasi`, icon: Fuel, cls: "text-brand-950", iconCls: "bg-brand-100/60 text-brand-700" },

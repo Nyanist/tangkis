@@ -4,6 +4,8 @@ import * as React from "react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useLang } from "@/lib/i18n";
+import { EMAIL_TANGKIS, mailtoTangkis } from "@/lib/mailto";
 import { ArrowRight, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
@@ -14,11 +16,10 @@ import type { GeoPermissibleObjects } from "d3";
 
 const smoothEase = [0.25, 0.1, 0.25, 1] as const;
 
-// ponytail: phone is a decorative placeholder, like the LinkedIn/Instagram links
-// elsewhere in Footer.tsx — no dedicated support line configured yet.
+// The email href is filled in at render time with the template in the visitor's language (see lib/mailto.ts).
 const CONTACT_LINKS = [
-  { icon: Mail, label: "tangkis.tech@gmail.com", href: "mailto:tangkis.tech@gmail.com" },
-  { icon: Phone, label: "+62 00 0000 0000", href: "tel:+62 00 0000 0000" },
+  { icon: Mail, label: EMAIL_TANGKIS, href: "" },
+  { icon: Phone, label: "0895807022422", href: "tel:+62895807022422" },
 ];
 
 interface GlobeWireframeProps {
@@ -519,11 +520,18 @@ interface ContactWithGlobeProps {
 // ponytail: static UI only, like the login/FAQ pages — no submit handler wired up
 // since there's no backend endpoint to send this to yet.
 export default function ContactWithGlobe({
-  title = "Hubungi Kami",
-  subtitle = "Kontak",
-  description = "Kami selalu terbuka untuk membantu. Hubungi tim TANGKIS untuk pertanyaan produk, kerja sama, atau dukungan teknis.",
+  title,
+  subtitle,
+  description,
   className,
 }: ContactWithGlobeProps) {
+  const { t, lang } = useLang();
+  title ??= t("Hubungi Kami", "Contact Us");
+  subtitle ??= t("Kontak", "Contact");
+  description ??= t(
+    "Kami selalu terbuka untuk membantu. Hubungi tim TANGKIS untuk pertanyaan produk, kerja sama, atau dukungan teknis.",
+    "We're always happy to help. Contact the TANGKIS team for product questions, partnerships, or technical support."
+  );
   return (
     <div className={cn("relative w-full", className)}>
       <div className="mb-12 flex flex-col items-center gap-4 text-center">
@@ -567,9 +575,9 @@ export default function ContactWithGlobe({
           className="flex flex-col gap-6"
         >
           <div className="flex flex-col gap-1">
-            <h3 className="text-xl font-semibold text-[#f0f0f0]">Hubungi Langsung</h3>
+            <h3 className="text-xl font-semibold text-[#f0f0f0]">{t("Hubungi Langsung", "Reach Us Directly")}</h3>
             <p className="max-w-xs text-sm leading-relaxed text-slate-400">
-              Kirim pesan lewat salah satu kanal berikut. Kami biasanya membalas dalam satu hari kerja.
+              {t("Kirim pesan lewat salah satu kanal berikut. Kami biasanya membalas dalam satu hari kerja.", "Send a message through one of the channels below. We usually reply within one business day.")}
             </p>
           </div>
 
@@ -577,16 +585,14 @@ export default function ContactWithGlobe({
             {CONTACT_LINKS.map(({ icon: Icon, label, href }, i) => (
               <motion.a
                 key={label}
-                href={href}
+                href={href || mailtoTangkis(lang)}
                 initial={{ opacity: 0, x: -12 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.3 + i * 0.1, ease: smoothEase }}
                 className="group flex w-fit items-center gap-3 text-sm text-slate-400 transition-colors duration-200 hover:text-[#f0f0f0]"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 transition-all duration-200 group-hover:border-brand-300/40 group-hover:bg-brand-500/10">
-                  <Icon className="h-3.5 w-3.5 text-slate-400 transition-colors duration-200 group-hover:text-brand-300" />
-                </div>
+                <Icon className="h-4 w-4 shrink-0 text-slate-400 transition-colors duration-200 group-hover:text-brand-300" strokeWidth={1.75} aria-hidden />
                 {label}
               </motion.a>
             ))}
@@ -614,15 +620,15 @@ export default function ContactWithGlobe({
           className="flex flex-col gap-5 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm sm:p-8"
         >
           <div>
-            <h3 className="mb-0.5 text-lg font-semibold text-[#f0f0f0]">Kirim Pesan</h3>
-            <p className="text-sm text-slate-400">Isi formulir berikut dan tim kami akan segera merespons.</p>
+            <h3 className="mb-0.5 text-lg font-semibold text-[#f0f0f0]">{t("Kirim Pesan", "Send a Message")}</h3>
+            <p className="text-sm text-slate-400">{t("Isi formulir berikut dan tim kami akan segera merespons.", "Fill in the form below and our team will respond shortly.")}</p>
           </div>
 
           <FormDots />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-widest text-slate-500">Nama Lengkap</label>
+              <label className="text-xs font-semibold uppercase tracking-widest text-slate-500">{t("Nama Lengkap", "Full Name")}</label>
               <input
                 type="text"
                 placeholder="Budi Santoso"
@@ -630,35 +636,35 @@ export default function ContactWithGlobe({
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-widest text-slate-500">Instansi</label>
+              <label className="text-xs font-semibold uppercase tracking-widest text-slate-500">{t("Instansi", "Organization")}</label>
               <input
                 type="text"
-                placeholder="RS Medika Center"
+                placeholder={t("RS Medika Center", "Medika Center Hospital")}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-[#f0f0f0] outline-none transition-all duration-200 placeholder:text-slate-500 focus:border-brand-300/50 focus:ring-2 focus:ring-brand-500/10"
               />
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold uppercase tracking-widest text-slate-500">Alamat Email</label>
+            <label className="text-xs font-semibold uppercase tracking-widest text-slate-500">{t("Alamat Email", "Email Address")}</label>
             <input
               type="email"
-              placeholder="nama@perusahaan.com"
+              placeholder={t("nama@perusahaan.com", "name@company.com")}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-[#f0f0f0] outline-none transition-all duration-200 placeholder:text-slate-500 focus:border-brand-300/50 focus:ring-2 focus:ring-brand-500/10"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold uppercase tracking-widest text-slate-500">Pesan</label>
+            <label className="text-xs font-semibold uppercase tracking-widest text-slate-500">{t("Pesan", "Message")}</label>
             <textarea
-              placeholder="Tulis pesan Anda di sini"
+              placeholder={t("Tulis pesan Anda di sini", "Write your message here")}
               rows={4}
               className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-[#f0f0f0] outline-none transition-all duration-200 placeholder:text-slate-500 focus:border-brand-300/50 focus:ring-2 focus:ring-brand-500/10"
             />
           </div>
 
           <Button className="group h-11 w-fit rounded-xl bg-[#f0f0f0] px-8 text-sm font-semibold text-brand-950 hover:bg-brand-100">
-            Kirim Pesan
+            {t("Kirim Pesan", "Send Message")}
             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
           </Button>
         </motion.div>

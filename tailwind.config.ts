@@ -38,10 +38,16 @@ const config: Config = {
       fontFamily: {
         // body + heading 2
         sans: ["var(--font-plus-jakarta-sans)", "sans-serif"],
-        // heading 1
-        heading: ["var(--font-space-grotesk)", "sans-serif"],
+        // heading 1: Geist Sans
+        heading: ["var(--font-geist-sans)", "sans-serif"],
+        // closing CTA headline: serif display
+        serif: ["var(--font-fraunces)", "Georgia", "serif"],
         // tags / badges
         mono: ["var(--font-jetbrains-mono)", "monospace"],
+        // Cara Kerja section: same heading faces as the rest of the site (h1 Geist Sans, h2 Inter), body General Sans Regular
+        "hiw-h1": ["var(--font-geist-sans)", "sans-serif"],
+        "hiw-h2": ["var(--font-inter)", "sans-serif"],
+        "hiw-body": ["General Sans", "var(--font-plus-jakarta-sans)", "sans-serif"],
         // description / lead copy — Satoshi loaded via Fontshare <link>, not next/font
         description: ["Satoshi", "var(--font-plus-jakarta-sans)", "sans-serif"],
       },
