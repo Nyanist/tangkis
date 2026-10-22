@@ -1,6 +1,8 @@
 "use client";
 import { useMemo, useState } from "react";
 import { AMBANG, type TrenTangki } from "@/lib/data/dashboard";
+import { useLang } from "@/lib/i18n";
+import { DATA_EN } from "@/lib/data/dashboardI18n";
 
 // ponytail: Fritsch-Carlson monotone spline inline — recharts if multi-series/interactions grow
 function tangents(xs: number[], ys: number[]) {
@@ -18,7 +20,9 @@ function tangents(xs: number[], ys: number[]) {
   return m;
 }
 
-export default function TrendChart({ tren, judul }: { tren: TrenTangki; judul: string }) {
+export default function TrendChart({ tren: trenRaw, judul }: { tren: TrenTangki; judul: string }) {
+  const { t } = useLang();
+  const tren = useMemo(() => ({ ...trenRaw, bulan: trenRaw.bulan.map((b) => t(b, DATA_EN[b])) }), [trenRaw, t]);
   const [active, setActive] = useState(tren.ppm.length - 1);
   const W = 640, H = 300, mg = { t: 24, r: 14, b: 30, l: 48 };
   const iw = W - mg.l - mg.r, ih = H - mg.t - mg.b;
@@ -48,18 +52,18 @@ export default function TrendChart({ tren, judul }: { tren: TrenTangki; judul: s
     <section aria-labelledby="judul-tren" className="rounded-lg border border-brand-100 bg-white p-4 md:p-5">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <h2 id="judul-tren" className="font-semibold text-brand-950">{judul}</h2>
-        <ul className="flex flex-wrap gap-4 text-xs text-[#5A6B7B]" aria-hidden="true">
-          <li className="flex items-center gap-1.5"><span className="h-1 w-5 rounded bg-brand-700" />Kadar air</li>
-          <li className="flex items-center gap-1.5"><span className="w-5 border-t-2 border-dashed border-[#D64545]" />Batas {AMBANG.batas} ppm</li>
+        <ul className="flex flex-wrap gap-4 text-xs text-neutral-900" aria-hidden="true">
+          <li className="flex items-center gap-1.5"><span className="h-1 w-5 rounded bg-brand-700" />{t("Kadar air", "Water content")}</li>
+          <li className="flex items-center gap-1.5"><span className="w-5 border-t-2 border-dashed border-[#D64545]" />{t("Batas", "Limit")} {AMBANG.batas} ppm</li>
         </ul>
       </div>
       <div className="relative">
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className="block h-64 w-full rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 md:h-80"
+          className="block aspect-[640/300] h-auto w-full rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 md:h-80"
           role="img"
           tabIndex={0}
-          aria-label={`${judul}. Nilai terakhir ${tren.ppm[n - 1]} ppm, batas ${AMBANG.batas} ppm.`}
+          aria-label={`${judul}. ${t("Nilai terakhir", "Latest value")} ${tren.ppm[n - 1]} ppm, ${t("batas", "limit")} ${AMBANG.batas} ppm.`}
           onKeyDown={(e) => {
             if (e.key === "ArrowRight") setActive((a) => Math.min(n - 1, a + 1));
             if (e.key === "ArrowLeft") setActive((a) => Math.max(0, a - 1));
@@ -87,13 +91,13 @@ export default function TrendChart({ tren, judul }: { tren: TrenTangki; judul: s
           {ticks.map((v) => (
             <g key={v}>
               <line x1={mg.l} x2={W - mg.r} y1={g.py(v)} y2={g.py(v)} stroke={v === min ? "#172B3A55" : "#172B3A12"} strokeWidth="1" />
-              <text x={mg.l - 8} y={g.py(v) + 4} textAnchor="end" fontSize="12" fill="#5A6B7B">{v}</text>
+              <text x={mg.l - 8} y={g.py(v) + 4} textAnchor="end" fontSize="12" fill="#171717">{v}</text>
             </g>
           ))}
 
           <line x1={mg.l} x2={W - mg.r} y1={g.yBatas} y2={g.yBatas} stroke="#D64545" strokeWidth="1.5" strokeDasharray="6 5" />
           <text x={W - mg.r} y={g.yBatas - 6} textAnchor="end" fontSize="12" fontWeight="600" fill="#B83232">
-            Batas spesifikasi {AMBANG.batas} ppm
+            {t("Batas spesifikasi", "Specification limit")} {AMBANG.batas} ppm
           </text>
 
           <path d={`${g.d} L${g.xs[n - 1]} ${g.bottom} L${g.xs[0]} ${g.bottom} Z`} fill="url(#grad-brand)" clipPath="url(#klip-bawah)" />
@@ -108,7 +112,7 @@ export default function TrendChart({ tren, judul }: { tren: TrenTangki; judul: s
               {i === active && (
                 <text x={g.xs[i]} y={g.ys[i] - 16} textAnchor="middle" fontSize="12" fontWeight="600" fill={v > AMBANG.batas ? "#B83232" : "#172B3A"}>{v}</text>
               )}
-              <text x={g.xs[i]} y={H - 8} textAnchor="middle" fontSize="12" fill="#5A6B7B">{tren.bulan[i]}</text>
+              <text x={g.xs[i]} y={H - 8} textAnchor="middle" fontSize="12" fill="#171717">{tren.bulan[i]}</text>
               {/* ponytail: no SVG <title> tooltip here — React's document-metadata hoisting
                   mishandles multi-child <title> elements during SSR (empty on server, filled
                   on client → hydration mismatch when this chart renders outside a popup).
@@ -136,7 +140,7 @@ export default function TrendChart({ tren, judul }: { tren: TrenTangki; judul: s
         >
           <span className="opacity-70">{tren.bulan[active]}</span>
           <span className="block text-base font-bold tabular-nums">{tren.ppm[active]} ppm</span>
-          <span>{over ? `+${Math.round(((tren.ppm[active] - AMBANG.batas) / AMBANG.batas) * 100)}% di atas batas` : `${AMBANG.batas - tren.ppm[active]} ppm di bawah batas`}</span>
+          <span>{over ? `+${Math.round(((tren.ppm[active] - AMBANG.batas) / AMBANG.batas) * 100)}% ${t("di atas batas", "above limit")}` : `${AMBANG.batas - tren.ppm[active]} ppm ${t("di bawah batas", "below limit")}`}</span>
         </div>
       </div>
     </section>

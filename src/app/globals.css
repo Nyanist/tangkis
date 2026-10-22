@@ -8,7 +8,13 @@
 }
 
 h1 {
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+h2,
+h3,
+h4 {
+  font-family: var(--font-inter), sans-serif;
 }
 
 body {
@@ -28,6 +34,8 @@ html {
   100% { transform: translateX(-50%); }
 }
 .animate-marquee { animation: marquee 20s linear infinite; }
+.animate-roles-drift { animation: marquee 80s linear infinite; will-change: transform; }
+.animate-marquee-tagline { animation: marquee 38s linear infinite; will-change: transform; }
 
 @keyframes spin-slow {
   to { transform: rotate(360deg); }
@@ -55,9 +63,68 @@ html {
 }
 .accordion-content[data-open="true"] { grid-template-rows: 1fr; }
 
+/* Cara Kerja simulator: data flowing along the probe→control-box cable, and drops leaving the drain valve. */
+@keyframes cable-flow {
+  to { stroke-dashoffset: -24; }
+}
+.animate-cable-flow { animation: cable-flow 1.2s linear infinite; }
+@keyframes drip {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(28px); opacity: 0; }
+}
+.animate-drip { animation: drip 0.7s ease-in infinite; }
+
+/* Hero backdrop (components/motion/HeroBackdrop.tsx). Transform/opacity only, each on its own layer
+   (will-change), long durations and sine-like easing so nothing ever visibly steps or accelerates. */
+@keyframes aurora-a {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(14%, 12%, 0) scale(1.15); }
+}
+@keyframes aurora-b {
+  0% { transform: translate3d(0, 0, 0) scale(1.08); }
+  100% { transform: translate3d(-14%, 10%, 0) scale(0.94); }
+}
+@keyframes aurora-c {
+  0% { transform: translate3d(0, 0, 0) scale(0.96); }
+  100% { transform: translate3d(12%, -14%, 0) scale(1.16); }
+}
+.animate-aurora-a { animation: aurora-a 28s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate; will-change: transform; }
+.animate-aurora-b { animation: aurora-b 34s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate; will-change: transform; }
+.animate-aurora-c { animation: aurora-c 40s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate; will-change: transform; }
+
+/* one grid cell (56px) per loop, so the wrap is invisible */
+@keyframes grid-drift {
+  to { transform: translate3d(0, 56px, 0); }
+}
+.animate-grid-drift { animation: grid-drift 8s linear infinite; will-change: transform; }
+
+/* the waveform strip is two copies wide; sliding it left by half returns to an identical picture */
+@keyframes wave-scroll {
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.animate-wave-scroll { animation: wave-scroll 22s linear infinite; will-change: transform; }
+
+@keyframes particle-rise {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: translate3d(0, -110vh, 0); opacity: 0; }
+}
+.animate-particle-rise { animation: particle-rise linear infinite; will-change: transform, opacity; }
+
+/* glow + rings behind the product image */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(0.96); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+.animate-glow-pulse { animation: glow-pulse 8s ease-in-out infinite; will-change: transform, opacity; }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .animate-marquee, .animate-scroll-hint, .animate-circuit-pulse { animation: none; }
+  .animate-marquee, .animate-marquee-tagline, .animate-roles-drift, .animate-scroll-hint, .animate-circuit-pulse, .animate-cable-flow, .animate-drip,
+  .animate-aurora-a, .animate-aurora-b, .animate-aurora-c, .animate-grid-drift,
+  .animate-wave-scroll, .animate-particle-rise, .animate-glow-pulse { animation: none; }
+  .animate-particle-rise { display: none; }
 }
 
 /* ponytail: notch/home-indicator padding only on devices that need it */
@@ -100,4 +167,23 @@ html {
 }
 @media (prefers-reduced-motion: reduce) {
   .led--pulse::after { animation: none; opacity: 0.3; }
+}
+
+/* Tank map site marker (TankMap.tsx): a dot in the site's status colour (--c) with a pulsing ring around it. */
+.tank-pulse { position: relative; display: grid; place-items: center; width: 100%; height: 100%; cursor: pointer; }
+.tank-pulse::before, .tank-pulse::after {
+  content: ""; position: absolute; width: 14px; height: 14px; border-radius: 9999px; background: var(--c);
+  opacity: 0; animation: tank-pulse 2s ease-out infinite; animation-delay: var(--delay, 0s);
+}
+.tank-pulse::after { animation-delay: calc(var(--delay, 0s) + 1s); }
+.tank-pulse--kritis::before, .tank-pulse--kritis::after { animation-duration: 1.4s; }
+.tank-pulse--kritis::after { animation-delay: calc(var(--delay, 0s) + 0.7s); }
+.tank-pulse__dot {
+  position: relative; width: 14px; height: 14px; border-radius: 9999px; background: var(--c);
+  border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+.tank-pulse__dot--selected { width: 18px; height: 18px; border: 3px solid #12260a; }
+@keyframes tank-pulse { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(2.4); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .tank-pulse::before, .tank-pulse::after { animation: none; opacity: 0.25; transform: scale(1.8); }
 }

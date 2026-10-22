@@ -14,7 +14,7 @@ export default function TankTable({ lokasi }: { lokasi: string }) {
   const [detailTarget, setDetailTarget] = useState<string | null>(null);
   const max = SKALA_TAMPILAN_PPM;
 
-  const tampil = tangki.filter((t) => t.lokasi.split(" — ")[0] === lokasi);
+  const tampil = tangki.filter((t) => t.lokasi.split(", ")[0] === lokasi);
   const resetTank = tangki.find((t) => t.kode === resetTarget);
   const detailTank = tangki.find((t) => t.kode === detailTarget);
 

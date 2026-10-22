@@ -3,7 +3,7 @@ export const AMBANG = { kuningMulai: 220, batas: 300 };
 // Shared by every Daftar Tangki table's legend (/dashboard and /dashboard-2).
 export const LEGENDA_AMBANG = [
   { label: "Hijau di bawah 220 ppm*", warna: "#6aa84f" },
-  { label: "Kuning 220–300 ppm*", warna: "#E9A21B" },
+  { label: "Kuning 220 sampai 300 ppm*", warna: "#E9A21B" },
   { label: "Merah di atas 300 ppm*", warna: "#D64545" },
 ];
 
@@ -23,11 +23,29 @@ export interface Tangki {
 }
 
 export const TANGKI: Tangki[] = [
-  { kode: "TK-01", lokasi: "Rumah Sakit A — Tangki Utama", airPpm: 412, suhuC: 36, hari: 187, status: "MERAH" },
-  { kode: "TK-02", lokasi: "Rumah Sakit A — Day Tank", airPpm: 268, suhuC: 34, hari: 42, status: "KUNING" },
-  { kode: "TK-03", lokasi: "Menara Perkantoran B — Basement", airPpm: 195, suhuC: 31, hari: 63, status: "HIJAU" },
-  { kode: "TK-04", lokasi: "Menara Perkantoran B — Cadangan", airPpm: 241, suhuC: 33, hari: 96, status: "KUNING" },
-  { kode: "TK-05", lokasi: "Pusat Data C — Ruang Genset 1", airPpm: 322, suhuC: 29, hari: 58, status: "MERAH" },
+  { kode: "TK-01", lokasi: "Rumah Sakit A, Tangki Utama", airPpm: 412, suhuC: 36, hari: 187, status: "MERAH" },
+  { kode: "TK-02", lokasi: "Rumah Sakit A, Day Tank", airPpm: 268, suhuC: 34, hari: 42, status: "KUNING" },
+  { kode: "TK-03", lokasi: "Menara Perkantoran B, Basement", airPpm: 195, suhuC: 31, hari: 63, status: "HIJAU" },
+  { kode: "TK-04", lokasi: "Menara Perkantoran B, Cadangan", airPpm: 241, suhuC: 33, hari: 96, status: "KUNING" },
+  { kode: "TK-05", lokasi: "Pusat Data C, Ruang Genset 1", airPpm: 322, suhuC: 29, hari: 58, status: "MERAH" },
+  // TK-06 onwards only appear on /dashboard (display names in DETAIL_PER_TANGKI, dashboard2.ts). /dashboard-2 groups
+  // tanks under its three PROFIL_LOKASI sites, so these never show up there.
+  { kode: "TK-06", lokasi: "Cikarang Data Center, Genset Zone A2", airPpm: 178, suhuC: 28, hari: 34, status: "HIJAU" },
+  { kode: "TK-07", lokasi: "Cikarang Data Center, Genset Zone B", airPpm: 236, suhuC: 30, hari: 71, status: "KUNING" },
+  { kode: "TK-08", lokasi: "RS Medika Surabaya, Main Storage", airPpm: 305, suhuC: 35, hari: 142, status: "MERAH" },
+  { kode: "TK-09", lokasi: "RS Medika Surabaya, Day Tank Genset #1", airPpm: 210, suhuC: 34, hari: 21, status: "HIJAU" },
+  { kode: "TK-10", lokasi: "Dago Office Park, Basement 1", airPpm: 154, suhuC: 26, hari: 45, status: "HIJAU" },
+  { kode: "TK-11", lokasi: "Nusa Dua Resort Complex, Main Storage", airPpm: 284, suhuC: 33, hari: 88, status: "KUNING" },
+  { kode: "TK-12", lokasi: "Nusa Dua Resort Complex, Laundry Annex", airPpm: 199, suhuC: 32, hari: 39, status: "HIJAU" },
+  { kode: "TK-13", lokasi: "Medan Medical Center, Main Storage", airPpm: 347, suhuC: 34, hari: 165, status: "MERAH" },
+  { kode: "TK-14", lokasi: "Medan Medical Center, Day Tank Genset #1", airPpm: 262, suhuC: 33, hari: 52, status: "KUNING" },
+  { kode: "TK-15", lokasi: "Palembang Distribution Hub, Warehouse Genset", airPpm: 188, suhuC: 33, hari: 40, status: "HIJAU" },
+  { kode: "TK-16", lokasi: "Balikpapan Logistics Base, Main Storage", airPpm: 231, suhuC: 32, hari: 77, status: "KUNING" },
+  { kode: "TK-17", lokasi: "Balikpapan Logistics Base, Workshop Reserve", airPpm: 318, suhuC: 34, hari: 129, status: "MERAH" },
+  { kode: "TK-18", lokasi: "Pontianak Cold Storage, Genset Room", airPpm: 172, suhuC: 31, hari: 28, status: "HIJAU" },
+  { kode: "TK-19", lokasi: "Makassar Port Terminal, Main Storage", airPpm: 296, suhuC: 34, hari: 110, status: "KUNING" },
+  { kode: "TK-20", lokasi: "Makassar Port Terminal, Crane Day Tank", airPpm: 208, suhuC: 33, hari: 33, status: "HIJAU" },
+  { kode: "TK-21", lokasi: "Manado Data Center, Genset Zone A", airPpm: 164, suhuC: 29, hari: 26, status: "HIJAU" },
 ];
 
 export interface TrenTangki {
@@ -47,6 +65,20 @@ export const TREN_PER_TANGKI: Record<string, TrenTangki> = {
   "TK-04": { bulan: BULAN, ppm: [140, 165, 190, 210, 226, 241], sumbuY: { min: 100, max: 300, langkah: 50 } },
   "TK-05": { bulan: BULAN, ppm: [180, 210, 245, 275, 300, 322], sumbuY: { min: 150, max: 350, langkah: 50 } },
 };
+
+// The demo tanks added later get a generated six-month climb ending on the current reading: a steady monthly rise
+// plus a small fixed wobble so the lines are not identical. The y axis is padded and snapped to 50 ppm.
+const GOYANG = [0, 6, -4, 5, -3, 0];
+for (const tk of TANGKI) {
+  if (TREN_PER_TANGKI[tk.kode]) continue;
+  const naik = Math.max(8, Math.round(tk.airPpm * 0.07));
+  const ppm = BULAN.map((_, i) => tk.airPpm - (BULAN.length - 1 - i) * naik + GOYANG[i]);
+  TREN_PER_TANGKI[tk.kode] = {
+    bulan: BULAN,
+    ppm,
+    sumbuY: { min: Math.floor((Math.min(...ppm) - 20) / 50) * 50, max: Math.ceil((Math.max(...ppm) + 20) / 50) * 50, langkah: 50 },
+  };
+}
 
 // Per-tank "Kesehatan Sistem" — same 4 components as the global widget below,
 // but scoped to one tank's own hardware, with a simple binary reading.
@@ -89,7 +121,16 @@ export const KESEHATAN_PER_TANGKI: Record<string, ItemKesehatan[]> = {
   ],
 };
 
-// Profil Lokasi — one entry per site (matches the prefix before " — " in Tangki.lokasi)
+// Added demo tanks: everything online, except one gateway left offline so the popup has something to flag.
+for (const tk of TANGKI) {
+  if (KESEHATAN_PER_TANGKI[tk.kode]) continue;
+  KESEHATAN_PER_TANGKI[tk.kode] = KESEHATAN_PER_TANGKI["TK-01"].map((k) => ({
+    ...k,
+    status: tk.kode === "TK-17" && k.ikon === "gateway" ? "OFFLINE" : "ONLINE",
+  }));
+}
+
+// Profil Lokasi — one entry per site (matches the part before the first comma in Tangki.lokasi)
 export interface ProfilLokasi {
   alamat: string;
   pic: string;

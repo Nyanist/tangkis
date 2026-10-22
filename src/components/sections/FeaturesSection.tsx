@@ -1,26 +1,41 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import SectionBadge from "@/components/sections/SectionBadge";
 import FadeUp from "@/components/motion/FadeUp";
 import { features } from "@/lib/data/features";
 import { product } from "@/lib/data/product";
+import { useLang } from "@/lib/i18n";
 import { cn, KONTEN_SECTION } from "@/lib/utils";
 
 // Callout points on product-exploded.webp (624x468), positioned as % of the image —
 // approximated by eye against the render, matching public/ref/ref-product.png's labels.
-const PRODUCT_CALLOUTS = [
-  { label: "Layar Status (OLED LED)", x: 6, y: 63 },
-  { label: "RTC + Kartu Memori", x: 41, y: 50 },
-  { label: "ESP32 + Modul Wifi", x: 44, y: 32 },
-  { label: "DC-DC Buck Converter", x: 35, y: 64 },
-  { label: "Enclosure IP65", x: 72, y: 19 },
-  { label: "LED Indicator", x: 91, y: 49 },
-  { label: "Probe Stainless 316 (built in sensor)", x: 72, y: 88 },
+// Each callout is a black leader line from the component (x, y) out to a tail point (tx, ty), with the
+// name plate attached at the tail on its `dir` side. All values are % of the 624x468 render. Tails are
+// chosen so plates sit in the emptier parts of the picture and never cover each other.
+type Callout = { label: string; en: string; x: number; y: number; tx: number; ty: number; dir: "left" | "right" | "top" | "bottom"; wrap?: boolean };
+const PRODUCT_CALLOUTS: Callout[] = [
+  { label: "Layar Status (OLED LED)", en: "Status Display (OLED LED)", x: 6, y: 62, tx: 3, ty: 74, dir: "right" },
+  { label: "RTC + Kartu Memori", en: "RTC + Memory Card", x: 41, y: 52, tx: 32, ty: 40, dir: "left" },
+  { label: "ESP32 + Modul Wifi", en: "ESP32 + WiFi Module", x: 44, y: 31, tx: 38, ty: 10, dir: "top" },
+  // The small green board with the blue trimmer, between the main boards and the enclosure.
+  { label: "DC-DC Buck Converter", en: "DC-DC Buck Converter", x: 50.6, y: 62.4, tx: 50.6, ty: 80, dir: "bottom" },
+  { label: "Enclosure IP65", en: "IP65 Enclosure", x: 72, y: 19, tx: 76, ty: 6, dir: "top" },
+  { label: "LED Indicator", en: "LED Indicator", x: 91, y: 49, tx: 78, ty: 41, dir: "left" },
+  { label: "Probe Stainless 316 (sensor terpasang)", en: "Stainless 316 Probe (built-in sensor)", x: 71, y: 87, tx: 62, ty: 95, dir: "left", wrap: true },
 ];
 
+const PLATE_ANCHOR: Record<Callout["dir"], string> = {
+  left: "-translate-x-full -translate-y-1/2",
+  right: "-translate-y-1/2",
+  top: "-translate-x-1/2 -translate-y-full",
+  bottom: "-translate-x-1/2",
+};
+const calloutViewport = { once: true, margin: "0px 0px -20% 0px" } as const;
+
 export default function FeaturesSection() {
+  const { t } = useLang();
   const [active, setActive] = useState<number | null>(null); // null = all collapsed
 
   return (
@@ -33,24 +48,64 @@ export default function FeaturesSection() {
             <div className="relative aspect-[624/468] w-full">
               <Image
                 src={product.productImage}
-                alt={`Komponen internal ${product.name}`}
+                alt={`${t("Komponen internal", "Internal components of")} ${product.name}`}
                 fill
                 className="object-contain"
               />
-              {PRODUCT_CALLOUTS.map((c) => (
-                <div
-                  key={c.label}
-                  className="group absolute z-0 -translate-x-1/2 -translate-y-1/2 hover:z-30"
-                  style={{ left: `${c.x}%`, top: `${c.y}%` }}
-                >
-                  <span className="relative z-10 block h-4 w-4 cursor-default rounded-full border-[0.5px] border-brand-dark bg-brand-600/85 shadow-sm transition-transform duration-200 group-hover:scale-150 group-hover:bg-brand-600" />
+              <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                {PRODUCT_CALLOUTS.map((c, i) => (
+                  <motion.line
+                    key={c.label}
+                    x1={c.x}
+                    y1={c.y}
+                    x2={c.tx}
+                    y2={c.ty}
+                    stroke="#111"
+                    strokeWidth={1.25}
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={calloutViewport}
+                    transition={{ delay: 0.1 + i * 0.14, duration: 0.4 }}
+                  />
+                ))}
+              </svg>
+              {PRODUCT_CALLOUTS.map((c, i) => (
+                <div key={c.label}>
+                  {/* Pointer end of the leader line, sitting on the component */}
+                  {/* Framer owns `transform` on the dot (scale), which wipes out Tailwind's -translate centering and
+                      shifts it down-right of the line end. So the centering lives on a plain wrapper, the scale on the inner dot. */}
                   <span
-                    className={cn(
-                      "pointer-events-none absolute bottom-full z-20 mb-2 translate-y-1 whitespace-nowrap rounded-full bg-brand-700 px-3 py-1 text-xs font-medium text-[#f0f0f0] opacity-0 shadow-lg transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100",
-                      c.x < 15 ? "left-0" : c.x > 85 ? "right-0" : "left-1/2 -translate-x-1/2"
-                    )}
+                    className="pointer-events-none absolute z-10 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 md:h-2 md:w-2"
+                    style={{ left: `${c.x}%`, top: `${c.y}%` }}
                   >
-                    {c.label}
+                    <motion.span
+                      className="block h-full w-full rounded-full bg-[#111]"
+                      initial={{ opacity: 0, scale: 0.4 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={calloutViewport}
+                      transition={{ delay: 0.1 + i * 0.14, duration: 0.4 }}
+                    />
+                  </span>
+                  {/* Plain positioning wrapper: framer owns `transform` on the inner span, which would
+                      otherwise wipe out the translate classes that attach the plate to the line end. */}
+                  <span
+                    className={cn("pointer-events-none absolute z-20", PLATE_ANCHOR[c.dir])}
+                    style={{ left: `${c.tx}%`, top: `${c.ty}%` }}
+                  >
+                    <motion.span
+                      initial={{ opacity: 0, y: 4 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={calloutViewport}
+                      transition={{ delay: 0.25 + i * 0.14, duration: 0.45, ease: "easeOut" }}
+                      className={cn(
+                        "block rounded-full bg-brand-700 px-2 py-0.5 text-[10px] font-medium text-[#f0f0f0] shadow-lg md:px-3 md:py-1 md:text-xs",
+                        c.wrap ? "max-w-[9.5rem] whitespace-normal text-center leading-tight md:max-w-[11rem]" : "whitespace-nowrap"
+                      )}
+                    >
+                      {t(c.label, c.en)}
+                    </motion.span>
                   </span>
                 </div>
               ))}
@@ -59,8 +114,21 @@ export default function FeaturesSection() {
         </div>
         <div className="min-w-0">
           <FadeUp>
-            <SectionBadge number="03" label="Fitur" />
-            <h2 className="mb-8 mt-6 text-3xl font-bold md:text-5xl">Fitur Utama</h2>
+            <div className="mb-10 grid items-end gap-5 xl:grid-cols-[auto_1fr] xl:gap-10">
+              <div>
+                <h2 className="text-5xl font-bold leading-[1.04] tracking-[-0.035em] text-brand-950 md:text-6xl">
+                  {t("Fitur", "Key")}
+                  <br />
+                  <span className="text-brand-600">{t("Utama", "Features")}</span>
+                </h2>
+              </div>
+              <p className="max-w-sm text-base leading-relaxed text-slate-600 xl:pb-2">
+                {t(
+                  "Lima fitur yang memantau kualitas solar, mengurutkan risiko, dan memandu tindak lanjut sebelum genset gagal.",
+                  "Five features that monitor fuel quality, rank risk, and guide follow-up before the generator fails."
+                )}
+              </p>
+            </div>
           </FadeUp>
           <div className="border-t border-slate-200">
             {features.map((f) => {
@@ -74,18 +142,19 @@ export default function FeaturesSection() {
                   className="group block w-full border-b border-slate-200 py-8 text-left"
                 >
                   <div className="flex items-center gap-4">
-                    {/* <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-bold text-[#f0f0f0]">
-                      {String(i + 1).padStart(2, "0")}
-                    </span> */}
-                    <h3 className="flex-1 text-xl font-semibold">
-                      <f.icon className="mr-2 inline h-5 w-5 align-[-0.15em]" aria-hidden />
-                      {f.title}
-                    </h3>
-                    <ArrowUpRight className="h-6 w-6 transition-transform duration-300 group-hover:rotate-45" aria-hidden />
+                    {/* Bare line icon in a fixed-width slot so every title starts on the same left edge; it goes from
+                        quiet gray to brand green when the row is hovered or open. */}
+                    <f.icon
+                      className={`h-6 w-6 shrink-0 transition-colors duration-300 ${isOpen ? "text-brand-700" : "text-slate-400 group-hover:text-brand-700"}`}
+                      strokeWidth={1.5}
+                      aria-hidden
+                    />
+                    <h3 className="min-w-0 flex-1 text-lg font-semibold leading-snug sm:text-xl">{t(f.title)}</h3>
+                    <ArrowUpRight className="h-6 w-6 shrink-0 transition-transform duration-300 group-hover:rotate-45" aria-hidden />
                   </div>
                   <div className="accordion-content" data-open={isOpen}>
                     <div className="overflow-hidden">
-                      <p className="pl-14 pt-4 text-slate-600">{f.description}</p>
+                      <p className="pl-10 pr-10 pt-4 text-slate-600">{t(f.description)}</p>
                     </div>
                   </div>
                 </button>
