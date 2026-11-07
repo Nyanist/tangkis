@@ -1,7 +1,8 @@
 import dynamic from "next/dynamic";
 import AboutHeroSection from "@/components/sections/AboutHeroSection";
 import ValueSection from "@/components/sections/ValueSection";
-import TeamSection from "@/components/sections/TeamSection";
+// TEMP: team section hidden; restore this import together with <TeamSection /> below ValueSection
+// import TeamSection from "@/components/sections/TeamSection";
 import ClosingCtaSection from "@/components/sections/ClosingCtaSection";
 import { KONTEN_SECTION } from "@/lib/utils";
 
@@ -21,7 +22,6 @@ export default function AboutPage() {
     <main>
       <AboutHeroSection />
       <ValueSection />
-      <TeamSection />
       <ClosingCtaSection />
       <section className="overflow-hidden bg-brand-950 py-20 lg:py-28">
         <div className={KONTEN_SECTION}>
